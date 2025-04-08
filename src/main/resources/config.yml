@@ -1,0 +1,32 @@
+database:
+  target: 'local-mongo'
+  local-backend:
+    uri: "http://localhost:1337/api"
+  local-mongo:
+    uri: 'mongodb://localhost:27017'
+    database: 'minecraft'
+  local:
+    fileName: 'data'
+features:
+  double-xp:
+    multiplier: 2
+    enabled: true
+  enhancements:
+    allow-any-books-in-bookshelf: true
+    cart-speed-mod: true
+    cart-speed-multiplier: 2.5
+  teleport:
+    should-cost-material: true
+    material: "gold_ingot"
+    material-cost: 4
+    threshold: 60
+    delay: 2
+    enabled: true
+  watcher:
+    enable: true
+    interval: 30
+    min-tps: 17
+    warning-tps: 18
+integration:
+  aurellium-skills: true
+debugMode: false

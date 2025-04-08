@@ -1,0 +1,7 @@
+name: VanillaPlus
+version: '0.1'
+main: dev.ezpadaz.vanillaPlus.VanillaPlus
+api-version: '1.21'
+
+author: Molthor226
+description: A better version of VanillaEnhancer
