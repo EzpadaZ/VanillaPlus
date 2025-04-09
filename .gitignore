@@ -9,3 +9,6 @@
 /build/
 
 .gradle
+
+.DS_Store
+/Server/.DS_Store
