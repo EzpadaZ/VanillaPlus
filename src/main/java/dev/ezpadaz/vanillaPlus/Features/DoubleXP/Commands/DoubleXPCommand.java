@@ -44,4 +44,18 @@ public class DoubleXPCommand extends BaseCommand {
             }
         }
     }
+
+    @Subcommand("optin|verxp")
+    @Description("Informa al jugador de cambios de xp")
+    public void onOptinCommand(CommandSender sender) {
+        if (sender instanceof Player p) {
+            if(DoubleXP.isPlayerOptedIn(p.getName())){
+                DoubleXP.optedPlayers.remove(p.getName());
+                MessageHelper.send(p, "Dejaras de recibir actualizaciones de XP");
+            }else{
+                DoubleXP.optedPlayers.add(p.getName());
+                MessageHelper.send(p, "Ahora recibiras actualizaciones de XP");
+            }
+        }
+    }
 }

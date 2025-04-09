@@ -8,7 +8,8 @@
 /Server/plugins/
 /build/
 
-.gradle
+.gradle/
+.idea/
 
 .DS_Store
 /Server/.DS_Store

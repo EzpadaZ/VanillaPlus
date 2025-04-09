@@ -5,7 +5,11 @@ plugins {
 }
 
 group = 'dev.ezpadaz'
-version = '0.1'
+version = '0.2'
+
+def baseVersion = '0.2'
+def timestamp = new Date().format("yyyyMMddHHmm")
+version = "${baseVersion}+${timestamp}"
 
 repositories {
     mavenCentral()
@@ -30,9 +34,16 @@ jar {
 
 shadowJar {
     archiveClassifier.set('')
+    archiveFileName.set("VanillaPlus-${version}.jar")
     destinationDirectory.set(file("server/plugins"))
     dependencies {
         include(dependency('org.mongodb:mongodb-driver-sync:5.3.1'))
+    }
+
+    doFirst {
+        def pluginDir = file("server/plugins")
+        pluginDir.eachFileMatch(~/VanillaPlus-.*\.jar/) { it.delete() }
+        println "🧹 Cleaned old VanillaPlus jar(s) from plugins folder"
     }
 }
 

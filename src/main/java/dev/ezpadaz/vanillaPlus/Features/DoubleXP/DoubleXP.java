@@ -5,10 +5,14 @@ import dev.ezpadaz.vanillaPlus.Features.DoubleXP.Listener.ASDoubleXPListener;
 import dev.ezpadaz.vanillaPlus.Features.DoubleXP.Listener.DoubleXPListener;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
 
 public class DoubleXP {
     private static boolean eventEnabled = false;
 
+    public static ArrayList<String> optedPlayers = new ArrayList<>();
     public static void initialize() {
         if (!GeneralHelper.getConfigBool("features.double-xp.enabled")) {
             MessageHelper.console("DoubleXP is disabled.");
@@ -25,6 +29,15 @@ public class DoubleXP {
         }
         GeneralHelper.registerListener(new DoubleXPListener());
         MessageHelper.console("DoubleXP is enabled.");
+    }
+
+    public static boolean isPlayerOptedIn(String target) {
+        for(String name : optedPlayers) {
+            if(name.equalsIgnoreCase(target)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isEventEnabled() {

@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import com.google.common.collect.ImmutableList;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
@@ -31,6 +32,10 @@ public class GeneralHelper {
 
     public static void registerListener(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, VanillaPlus.getInstance());
+    }
+
+    public static Player getPlayer(String name) {
+        return VanillaPlus.getInstance().getServer().getPlayer(name);
     }
 
     public static String generateUUID() {

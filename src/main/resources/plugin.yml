@@ -1,5 +1,5 @@
 name: VanillaPlus
-version: '0.1'
+version: ${version}
 main: dev.ezpadaz.vanillaPlus.VanillaPlus
 api-version: '1.21'
 

@@ -4,6 +4,7 @@
   "exp_level": 0,
   "coordinates": [0,0],
   "status": "online || offline if it disconnects",
+  "inventory": "serializedInventory",
   "cdate": "leave this empty, i can fill it",
   "udate": "leave this empty, i can fill it"
 }

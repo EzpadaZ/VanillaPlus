@@ -11,11 +11,11 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class MessageHelper {
-    private static String PREFIX = "&6[&5VE&6]&f ";
+    private static String PREFIX = "&6[&5VP&6]&f ";
     private static String separator = "&c----------------------------------";
 
     public static void send(CommandSender sender, String message) {
-        send(sender, message, "&6[&5VE&6]&f ");
+        send(sender, message, "&6[&5VP&6]&f ");
     }
 
     public static void send(CommandSender sender, String message, String prefix) {

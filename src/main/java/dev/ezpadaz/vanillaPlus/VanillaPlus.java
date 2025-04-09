@@ -2,6 +2,7 @@ package dev.ezpadaz.vanillaPlus;
 
 import co.aikar.commands.PaperCommandManager;
 import dev.ezpadaz.vanillaPlus.Features.FeatureLoader;
+import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +21,11 @@ public final class VanillaPlus extends JavaPlugin {
         commandManager = new PaperCommandManager(this);
 
         FeatureLoader.loadAll();
+
+        MessageHelper.console("&6Command Manager: &a[OK]");
+        MessageHelper.console("&6Running on: &c" + getServer().getVersion());
+        MessageHelper.console("&6Plugin Version: &c" + getDescription().getVersion());
+        MessageHelper.console("&6Plugin Status: &a[OK]");
     }
 
     @Override
