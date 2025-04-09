@@ -31,8 +31,6 @@ jar {
 shadowJar {
     archiveClassifier.set('')
     destinationDirectory.set(file("server/plugins"))
-    relocate 'co.aikar.commands', 'dev.ezpadaz.vanillaPlus.acf'
-    relocate 'co.aikar.locales', 'dev.ezpadaz.vanillaPlus.locales'
     dependencies {
         include(dependency('org.mongodb:mongodb-driver-sync:5.3.1'))
     }
@@ -50,7 +48,7 @@ dependencies {
     implementation 'org.mongodb:mongodb-driver-sync:5.3.1'
     implementation 'org.xerial:sqlite-jdbc:3.49.1.0'
     implementation 'org.slf4j:slf4j-api:1.7.36'
-    implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
+    implementation fileTree(dir: 'libs', include: '*.jar')
 }
 
 tasks {
