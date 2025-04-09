@@ -8,6 +8,9 @@ database:
   local:
     fileName: 'data'
 features:
+  telemetry:
+    player-data: true # Player Login, Exit, Death data
+    player-messages: false # Messages.
   double-xp:
     multiplier: 2
     enabled: true

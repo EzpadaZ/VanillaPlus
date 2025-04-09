@@ -47,6 +47,9 @@ compileJava {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
     compileOnly 'dev.aurelium:auraskills-api-bukkit:2.2.4'
+    implementation 'org.mongodb:mongodb-driver-sync:5.3.1'
+    implementation 'org.xerial:sqlite-jdbc:3.49.1.0'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
 }
 
