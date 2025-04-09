@@ -1,0 +1,1 @@
+java -Xms1G -Xmx2G -jar server.jar nogui; read -n1 -r -p "Press any key to exit..."

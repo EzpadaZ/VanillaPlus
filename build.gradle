@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'com.gradleup.shadow' version '9.0.0-beta12'
 }
 
 group = 'dev.ezpadaz'
@@ -34,7 +34,7 @@ shadowJar {
     relocate 'co.aikar.commands', 'dev.ezpadaz.vanillaPlus.acf'
     relocate 'co.aikar.locales', 'dev.ezpadaz.vanillaPlus.locales'
     dependencies {
-        include(dependency('org.mongodb:mongodb-driver-sync:4.10.0'))
+        include(dependency('org.mongodb:mongodb-driver-sync:5.3.1'))
     }
 }
 
