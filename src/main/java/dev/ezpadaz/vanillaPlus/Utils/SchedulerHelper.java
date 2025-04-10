@@ -21,6 +21,7 @@ public class SchedulerHelper {
         return taskId;
     }
 
+
     public static void cancelTask(String name) {
         Integer taskId = tasks.remove(name);
         if (taskId != null) {

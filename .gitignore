@@ -1,3 +1,6 @@
+.gradle/
+.idea/
+
 /Server/world/
 /Server/world_the_end/
 /Server/world_nether/
@@ -7,9 +10,8 @@
 /Server/config/
 /Server/plugins/
 /build/
+/Server/.console_history
 
-.gradle/
-.idea/
 
 .DS_Store
 /Server/.DS_Store
