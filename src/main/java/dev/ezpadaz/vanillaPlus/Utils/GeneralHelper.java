@@ -2,8 +2,11 @@ package dev.ezpadaz.vanillaPlus.Utils;
 
 import co.aikar.commands.BaseCommand;
 import com.google.common.collect.ImmutableList;
+import de.slikey.effectlib.util.RandomUtils;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -26,7 +29,7 @@ public class GeneralHelper {
         VanillaPlus.getInstance().commandManager.registerCommand(command);
     }
 
-    public static void registerCompleter(String completerID, List<String> list){
+    public static void registerCompleter(String completerID, List<String> list) {
         VanillaPlus.getInstance().commandManager.getCommandCompletions().registerCompletion(completerID, c -> ImmutableList.of(list.toString()));
     }
 
@@ -64,6 +67,16 @@ public class GeneralHelper {
             e.printStackTrace(); // Handle the exception according to your needs
             return null;
         }
+    }
+
+    public static void playSound(Sound sound, Location location) {
+        SchedulerHelper.runTask(() ->
+                location.getWorld().playSound(
+                        location,
+                        sound,
+                        4.0F,
+                        (1.0F + (RandomUtils.random.nextFloat() - RandomUtils.random.nextFloat()) * 0.2F) * 0.7F
+                ));
     }
 
     public static String toISOString(Date date) {
@@ -104,7 +117,7 @@ public class GeneralHelper {
         return VanillaPlus.getInstance().getConfig().getInt(path);
     }
 
-    public static boolean isPluginPresent(String name){
+    public static boolean isPluginPresent(String name) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
         return (plugin != null && plugin.isEnabled());
     }

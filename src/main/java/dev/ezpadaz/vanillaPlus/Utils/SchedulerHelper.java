@@ -21,6 +21,10 @@ public class SchedulerHelper {
         return taskId;
     }
 
+    public static void runTask(Runnable task){
+        Bukkit.getScheduler().runTask(VanillaPlus.getInstance(), task);
+    }
+
 
     public static void cancelTask(String name) {
         Integer taskId = tasks.remove(name);
