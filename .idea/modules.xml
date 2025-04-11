@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/VanillaPlus.iml" filepath="$PROJECT_DIR$/.idea/modules/VanillaPlus.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/VanillaPlus.main.iml" filepath="$PROJECT_DIR$/.idea/modules/VanillaPlus.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.ezpadaz.VanillaPlus.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.ezpadaz.VanillaPlus.main.iml" />
     </modules>
   </component>
 </project>
