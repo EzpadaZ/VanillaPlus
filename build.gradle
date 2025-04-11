@@ -50,7 +50,10 @@ shadowJar {
 compileJava {
     options.compilerArgs += ["-parameters"]
     options.fork = true
-    options.forkOptions.executable = System.getProperty("java.home") + "/bin/javac"
+
+    def javaHome = System.getProperty("java.home")
+    def javacPath = new File(javaHome, "bin/javac${System.properties['os.name'].toLowerCase().contains('win') ? '.exe' : ''}")
+    options.forkOptions.executable = javacPath.absolutePath
 }
 
 dependencies {
