@@ -27,9 +27,9 @@ features:
     enabled: true
   watcher:
     enable: true
-    interval: 30
-    min-tps: 17
-    warning-tps: 18
+    interval: 60
+    min-tps: 17.0
+    warning-tps: 18.0
 integration:
   aurellium-skills: true
 debugMode: false
