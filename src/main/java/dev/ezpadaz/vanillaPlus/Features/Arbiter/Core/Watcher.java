@@ -33,6 +33,7 @@ public class Watcher {
         MIN_TPS = GeneralHelper.getConfigDouble("features.watcher.min-tps");
         WARNING_TPS = GeneralHelper.getConfigDouble("features.watcher.warning-tps");
         INTERVAL = GeneralHelper.getConfigInt("features.watcher.interval");
+        logMemory();
     }
 
     public void startProtection() {
