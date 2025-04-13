@@ -11,7 +11,8 @@
 /Server/plugins/
 /build/
 /Server/.console_history
-
+/Server/usercache.json
+/Server/version_history.json
 
 .DS_Store
 /Server/.DS_Store
