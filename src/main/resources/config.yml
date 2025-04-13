@@ -26,10 +26,11 @@ features:
     delay: 2
     enabled: true
   watcher:
-    enable: true
-    interval: 30
-    min-tps: 17
-    warning-tps: 18
+    enabled: true
+    interval: 60
+    min-tps: 17.0
+    warning-tps: 18.0
 integration:
   aurellium-skills: true
 debugMode: false
+owner: "Molthor226" # Change this to your name.

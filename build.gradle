@@ -1,7 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id 'com.gradleup.shadow' version '9.0.0-beta12'
+    id 'com.gradleup.shadow' version '8.3.3'
 }
 
 group = 'dev.ezpadaz'
@@ -36,8 +38,11 @@ shadowJar {
     archiveClassifier.set('')
     archiveFileName.set("VanillaPlus-${version}.jar")
     destinationDirectory.set(file("server/plugins"))
+
     dependencies {
         include(dependency('org.mongodb:mongodb-driver-sync:5.3.1'))
+        include(dependency("co.aikar:acf-paper:0.5.1-SNAPSHOT"))
+        include(dependency("com.elmakers.mine.bukkit:EffectLib:10.2"))
     }
 
     doFirst {
@@ -50,7 +55,10 @@ shadowJar {
 compileJava {
     options.compilerArgs += ["-parameters"]
     options.fork = true
-    options.forkOptions.executable = System.getProperty("java.home") + "/bin/javac"
+
+    def javaHome = System.getProperty("java.home")
+    def javacPath = new File(javaHome, "bin/javac${System.properties['os.name'].toLowerCase().contains('win') ? '.exe' : ''}")
+    options.forkOptions.executable = javacPath.absolutePath
 }
 
 dependencies {
@@ -59,7 +67,8 @@ dependencies {
     implementation 'org.mongodb:mongodb-driver-sync:5.3.1'
     implementation 'org.xerial:sqlite-jdbc:3.49.1.0'
     implementation 'org.slf4j:slf4j-api:1.7.36'
-    implementation fileTree(dir: 'libs', include: '*.jar')
+    implementation 'com.elmakers.mine.bukkit:EffectLib:10.2'
+    implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
 }
 
 tasks {
@@ -87,6 +96,11 @@ tasks.withType(JavaCompile).configureEach {
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         options.release.set(targetJavaVersion)
     }
+}
+
+tasks.withType(ShadowJar).configureEach {
+    relocate 'co.aikar.commands', 'dev.ezpadaz.vanillaPlus.acf'
+    relocate 'co.aikar.locales', 'dev.ezpadaz.vanillaPlus.locales'
 }
 
 processResources {
