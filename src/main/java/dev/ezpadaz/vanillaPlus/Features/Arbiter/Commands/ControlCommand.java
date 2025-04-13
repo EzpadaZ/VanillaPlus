@@ -36,6 +36,7 @@ public class ControlCommand extends BaseCommand {
                 ? (t2 < Watcher.getInstance().WARNING_TPS ? "&e" + t2 : "&a" + t2)
                 : "&c" + t2) + "]");
         strings.add("PLAYERS: &a[" + VanillaPlus.getInstance().getServer().getOnlinePlayers().size() + "]");
+        strings.add("MEMORY: &a["+Watcher.getInstance().getUsedMemory()+"&a]");
         strings.add("REPORT: &a[" + Watcher.getInstance().getStatus() + "&a]");
         MessageHelper.sendMultipleMessage(p, "&6Arbiter Report", "OS", strings);
     }

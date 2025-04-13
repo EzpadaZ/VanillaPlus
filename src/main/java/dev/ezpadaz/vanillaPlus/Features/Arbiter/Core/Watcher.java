@@ -20,6 +20,9 @@ public class Watcher {
     public double WARNING_TPS;
     private int INTERVAL;
 
+    private static long USED_MEMORY = 0;
+    private static long MAX_MEMORY = 0;
+
     public static Watcher getInstance() {
         if (instance == null) instance = new Watcher();
         return instance;
@@ -40,9 +43,11 @@ public class Watcher {
 
                 double[] AVERAGE_TPS = VanillaPlus.getInstance().getServer().getTPS();
 
-                if(watcherDebugMode){
+                if (watcherDebugMode) {
                     consoleHealthLog();
                 }
+
+                logMemory();
 
                 if (AVERAGE_TPS[0] <= WARNING_TPS) {
                     MessageHelper.global(arbiterPrefix + "Se ha detectado una latencia, se encuentra en: " + AVERAGE_TPS[0]);
@@ -75,6 +80,18 @@ public class Watcher {
     private void consoleHealthLog() {
         double[] tps = VanillaPlus.getInstance().getServer().getTPS();
         MessageHelper.console(arbiterPrefix + "&6Current TPS: " + tps[0]);
+    }
+
+    private void logMemory() {
+        USED_MEMORY = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        MAX_MEMORY = Runtime.getRuntime().maxMemory();
+    }
+
+    public String getUsedMemory() {
+        long usedMB = USED_MEMORY / (1024 * 1024);
+        long totalMB = MAX_MEMORY / (1024 * 1024);
+        long percentage = (usedMB * 100) / totalMB;
+        return percentage + "% " + usedMB + "/" + totalMB + "MB";
     }
 
     public void reloadWatcher() {
@@ -115,7 +132,7 @@ public class Watcher {
             return "&eUNSTABLE";
         }
 
-        if(INTERNAL_SCHEDULER_TASK_ID != null){
+        if (INTERNAL_SCHEDULER_TASK_ID != null) {
             return "&aSTABLE";
         }
 
