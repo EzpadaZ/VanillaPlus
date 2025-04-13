@@ -101,6 +101,11 @@ public class GeneralHelper {
         }
     }
 
+    public static boolean isPlayerAllowed(Player player) {
+        String ownerName = getConfigString("owner");
+        return (player.isOp() || player.getName().equalsIgnoreCase(ownerName));
+    }
+
     public static boolean getConfigBool(String path) {
         return VanillaPlus.getInstance().getConfig().getBoolean(path);
     }

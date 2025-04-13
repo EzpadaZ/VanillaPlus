@@ -1,15 +1,18 @@
 package dev.ezpadaz.vanillaPlus.Features.Arbiter;
 
 import dev.ezpadaz.vanillaPlus.Features.Arbiter.Commands.ControlCommand;
+import dev.ezpadaz.vanillaPlus.Features.Arbiter.Core.Watcher;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
+import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 
 public class Arbiter {
-    private static String arbiterPrefix = "&6[&5Arbiter&6] ";
-
-    public void initialize() {
+    public static void initialize() {
         if (!GeneralHelper.getConfigBool("features.watcher.enabled")) return;
 
         GeneralHelper.registerCommand(new ControlCommand());
 
+        Watcher.getInstance().initialize();
+        Watcher.getInstance().startProtection();
+        MessageHelper.console("&6Arbiter &a[OK]");
     }
 }

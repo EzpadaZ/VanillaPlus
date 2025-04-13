@@ -34,4 +34,6 @@ public final class VanillaPlus extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
     }
+
+
 }
