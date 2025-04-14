@@ -74,6 +74,7 @@ public class GeneralHelper {
                 location.getWorld().playSound(
                         location,
                         sound,
+
                         4.0F,
                         (1.0F + (RandomUtils.random.nextFloat() - RandomUtils.random.nextFloat()) * 0.2F) * 0.7F
                 ));
