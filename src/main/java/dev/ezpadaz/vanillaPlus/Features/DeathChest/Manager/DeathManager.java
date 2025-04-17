@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.ezpadaz.vanillaPlus.Features.DeathChest.Model.GraveData;
-import dev.ezpadaz.vanillaPlus.Utils.EffectHelper;
-import dev.ezpadaz.vanillaPlus.Utils.ExperienceHelper;
-import dev.ezpadaz.vanillaPlus.Utils.InventoryHelper;
-import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
+import dev.ezpadaz.vanillaPlus.Utils.*;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,8 +18,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class DeathManager {
     private static final Map<Location, GraveData> graveyard = new HashMap<>();
@@ -53,8 +54,33 @@ public class DeathManager {
                 contents,
                 armorString,
                 offhand,
-                ExperienceHelper.getPlayerExp(player)
+                ExperienceHelper.getPlayerExp(player),
+                GeneralHelper.toISOString(GeneralHelper.getISODate())
         ));
+    }
+
+    public static void sendGraveInfo(Player viewer, Location location) {
+        GraveData data = graveyard.get(location);
+        if (data == null) return;
+
+        if(data.getDate() == null || data.getDate().isEmpty()) return;
+
+        try {
+            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date utcDate = isoFormat.parse(data.getDate());
+
+            SimpleDateFormat localFormat = new SimpleDateFormat("dd 'de' MMMM 'a las' HH:mm z");
+            localFormat.setTimeZone(TimeZone.getDefault());
+
+            String localTime = localFormat.format(utcDate);
+            String playerName = Bukkit.getOfflinePlayer(data.getPlayerId()).getName();
+
+            MessageHelper.send(viewer, "&7Esta tumba le pertenece a &e" + playerName +
+                    "&7, murió el &e" + localTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void removeGrave(Location loc) {
@@ -80,7 +106,7 @@ public class DeathManager {
 
     public static void loadGravesFromFile() {
         if (!dataFile.exists()) {
-            MessageHelper.console("&6DeathChest data: &c[EMPTY]");
+            MessageHelper.console("&6Graveyard Data: &c[EMPTY]");
             return;
         }
 
@@ -91,10 +117,10 @@ public class DeathManager {
             for (Map.Entry<String, GraveData> entry : loaded.entrySet()) {
                 graveyard.put(deserializeLocation(entry.getKey()), entry.getValue());
             }
-            MessageHelper.console("&6DeathChest data: &a[OK]");
+            MessageHelper.console("&6Graveyard Data: &a[OK]");
         } catch (IOException e) {
             e.printStackTrace();
-            MessageHelper.console("&6DeathChest data: &c[ERROR]");
+            MessageHelper.console("&6Graveyard Data: &c[ERROR]");
         }
     }
 

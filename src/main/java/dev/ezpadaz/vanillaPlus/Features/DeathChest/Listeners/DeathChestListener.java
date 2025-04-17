@@ -7,10 +7,13 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 public class DeathChestListener implements Listener {
 
@@ -23,6 +26,20 @@ public class DeathChestListener implements Listener {
         e.getDrops().clear();
         e.setDroppedExp(0);
         DeathManager.spawnGrave(e.getEntity());
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        Block clicked = event.getClickedBlock();
+        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD) return;
+
+        if (!DeathManager.isGrave(clicked.getLocation())) return;
+
+        event.setCancelled(true);
+        DeathManager.sendGraveInfo(event.getPlayer(), clicked.getLocation());
     }
 
     @EventHandler

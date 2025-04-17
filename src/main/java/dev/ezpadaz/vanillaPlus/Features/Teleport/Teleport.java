@@ -13,6 +13,6 @@ public class Teleport {
 
         // Register Commands
         GeneralHelper.registerCommand(new TeleportCommand());
-        MessageHelper.console("&6Teleport &a[ACTIVE]");
+        MessageHelper.console("&6Teleport &a[OK]");
     }
 }
