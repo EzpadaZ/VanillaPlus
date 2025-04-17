@@ -144,14 +144,6 @@ public class InventoryHelper {
         }
     }
 
-    public static void reverseArray(ItemStack[] array) {
-        for (int i = 0; i < array.length / 2; i++) {
-            ItemStack temp = array[i];
-            array[i] = array[array.length - 1 - i];
-            array[array.length - 1 - i] = temp;
-        }
-    }
-
     /**
      * A method to get an {@link Inventory} from an encoded, Base64, string.
      * <p>

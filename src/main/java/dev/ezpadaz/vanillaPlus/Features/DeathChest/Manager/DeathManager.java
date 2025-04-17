@@ -9,7 +9,6 @@ import dev.ezpadaz.vanillaPlus.Utils.ExperienceHelper;
 import dev.ezpadaz.vanillaPlus.Utils.InventoryHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
-import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -81,7 +80,7 @@ public class DeathManager {
 
     public static void loadGravesFromFile() {
         if (!dataFile.exists()) {
-            MessageHelper.console("No grave data file found.");
+            MessageHelper.console("&6DeathChest data: &c[EMPTY]");
             return;
         }
 
@@ -92,8 +91,10 @@ public class DeathManager {
             for (Map.Entry<String, GraveData> entry : loaded.entrySet()) {
                 graveyard.put(deserializeLocation(entry.getKey()), entry.getValue());
             }
+            MessageHelper.console("&6DeathChest data: &a[OK]");
         } catch (IOException e) {
             e.printStackTrace();
+            MessageHelper.console("&6DeathChest data: &c[ERROR]");
         }
     }
 
