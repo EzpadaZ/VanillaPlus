@@ -5,13 +5,14 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 @CommandAlias("teleport|tp|viaje")
 public class TeleportCommand extends BaseCommand {
 
     @Subcommand("here|traer|aqui")
-    @Description("Trae a alguien a tu ubicacion")
+    @Description("Trae a alguien a tu ubicación")
     @CommandCompletion("@players")
     public void onTeleportHereCommand(Player sender, Player target) {
 

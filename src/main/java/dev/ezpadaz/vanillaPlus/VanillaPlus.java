@@ -33,6 +33,7 @@ public final class VanillaPlus extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        //FeatureLoader.shutdownAll();
     }
 
 
