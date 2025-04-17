@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.ezpadaz.vanillaPlus.Features.DeathChest.Model.GraveData;
+import dev.ezpadaz.vanillaPlus.Utils.EffectHelper;
 import dev.ezpadaz.vanillaPlus.Utils.ExperienceHelper;
 import dev.ezpadaz.vanillaPlus.Utils.InventoryHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
@@ -59,6 +60,8 @@ public class DeathManager {
 
     public static void removeGrave(Location loc) {
         graveyard.remove(loc);
+        EffectHelper.getInstance().smokeExplosionEffect(loc);
+        EffectHelper.getInstance().strikeLightning(loc);
     }
 
     public static void saveGravesToFile() {

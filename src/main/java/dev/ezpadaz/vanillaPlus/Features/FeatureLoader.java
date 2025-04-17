@@ -30,5 +30,6 @@ public class FeatureLoader {
 
     public static void shutdownAll() {
         // Call death chest save.
+        DeathChest.shutDown();
     }
 }
