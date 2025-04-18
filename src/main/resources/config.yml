@@ -1,6 +1,7 @@
 features:
   death-chest:
     enabled: true
+    instant-respawn: true
   double-xp:
     multiplier: 2
     enabled: true
@@ -9,9 +10,7 @@ features:
     cart-speed-mod: true
     cart-speed-multiplier: 2.5
   teleport:
-    should-cost-material: true
-    material: "gold_ingot"
-    material-cost: 4
+    should-cost-exp: true
     threshold: 60
     delay: 2
     enabled: true
@@ -22,5 +21,5 @@ features:
     warning-tps: 18.0
 integration:
   aura-skills: true
-debugMode: false
+debugMode: true
 owner: "Molthor226" # Change this to your name.

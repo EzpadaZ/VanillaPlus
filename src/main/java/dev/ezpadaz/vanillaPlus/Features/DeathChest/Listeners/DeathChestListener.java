@@ -1,8 +1,11 @@
 package dev.ezpadaz.vanillaPlus.Features.DeathChest.Listeners;
 
 import dev.ezpadaz.vanillaPlus.Features.DeathChest.Manager.DeathManager;
-import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
+import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
+import dev.ezpadaz.vanillaPlus.VanillaPlus;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,6 +29,14 @@ public class DeathChestListener implements Listener {
         e.getDrops().clear();
         e.setDroppedExp(0);
         DeathManager.spawnGrave(e.getEntity());
+
+        if (GeneralHelper.getConfigBool("features.death-chest.instant-respawn")) {
+            // Instant respawn is enabled.
+            Bukkit.getScheduler().runTaskLater(VanillaPlus.getInstance(), () -> {
+                player.spigot().respawn();
+                GeneralHelper.playSound("particle.soul_escape", player.getLocation(), 10.0f, 0.4f);
+            }, 1L);
+        }
     }
 
     @EventHandler

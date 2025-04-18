@@ -63,18 +63,18 @@ public class DeathManager {
         GraveData data = graveyard.get(location);
         if (data == null) return;
 
-        if(data.getDate() == null || data.getDate().isEmpty()) return;
+        if(data.date() == null || data.date().isEmpty()) return;
 
         try {
             SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date utcDate = isoFormat.parse(data.getDate());
+            Date utcDate = isoFormat.parse(data.date());
 
             SimpleDateFormat localFormat = new SimpleDateFormat("dd 'de' MMMM 'a las' HH:mm z");
             localFormat.setTimeZone(TimeZone.getDefault());
 
             String localTime = localFormat.format(utcDate);
-            String playerName = Bukkit.getOfflinePlayer(data.getPlayerId()).getName();
+            String playerName = Bukkit.getOfflinePlayer(data.playerId()).getName();
 
             MessageHelper.send(viewer, "&7Esta tumba le pertenece a &e" + playerName +
                     "&7, murió el &e" + localTime);
@@ -144,15 +144,15 @@ public class DeathManager {
             return;
         }
 
-        if (!data.getPlayerId().equals(player.getUniqueId())) {
+        if (!data.playerId().equals(player.getUniqueId())) {
             MessageHelper.send(player, "&cNo puedes reclamar una tumba que no te pertenece.");
             return;
         }
 
         try {
-            ItemStack[] contents = InventoryHelper.itemStackArrayFromBase64(data.getContents());
-            ItemStack[] armor = InventoryHelper.itemStackArrayFromBase64(data.getArmor());
-            ItemStack[] offhand = InventoryHelper.itemStackArrayFromBase64(data.getOffhand());
+            ItemStack[] contents = InventoryHelper.itemStackArrayFromBase64(data.contents());
+            ItemStack[] armor = InventoryHelper.itemStackArrayFromBase64(data.armor());
+            ItemStack[] offhand = InventoryHelper.itemStackArrayFromBase64(data.offhand());
 
             player.getInventory().setContents(contents);
 
@@ -164,7 +164,7 @@ public class DeathManager {
 
             player.getInventory().setItemInOffHand(offhand.length > 0 ? offhand[0] : null);
 
-            ExperienceHelper.changePlayerExp(player, data.getTotalExperience());
+            ExperienceHelper.changePlayerExp(player, data.totalExperience());
             MessageHelper.send(player, "&aTu inventario ha sido restaurado desde la tumba.");
         } catch (IOException e) {
             MessageHelper.send(player, "&cError al restaurar el inventario.");
