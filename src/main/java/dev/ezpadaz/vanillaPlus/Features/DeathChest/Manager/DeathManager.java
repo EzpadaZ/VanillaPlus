@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -76,8 +77,12 @@ public class DeathManager {
             String localTime = localFormat.format(utcDate);
             String playerName = Bukkit.getOfflinePlayer(data.playerId()).getName();
 
+            int exp = data.totalExperience();
+            DecimalFormat formatter = new DecimalFormat("#,###");
+            String formattedExp = formatter.format(exp);
+
             MessageHelper.send(viewer, "&7Esta tumba le pertenece a &e" + playerName +
-                    "&7, murió el &e" + localTime);
+                    "&7, contiene &e" + formattedExp + " XP&7, murió el &e" + localTime);
         } catch (ParseException e) {
             e.printStackTrace();
         }

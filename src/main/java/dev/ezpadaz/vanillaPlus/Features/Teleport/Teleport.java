@@ -1,6 +1,7 @@
 package dev.ezpadaz.vanillaPlus.Features.Teleport;
 
 import dev.ezpadaz.vanillaPlus.Features.Teleport.Commands.TeleportCommand;
+import dev.ezpadaz.vanillaPlus.Features.Teleport.Utils.TeleportManager;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 
@@ -13,6 +14,7 @@ public class Teleport {
 
         // Register Commands
         GeneralHelper.registerCommand(new TeleportCommand());
+        TeleportManager.getInstance().initialize();
         MessageHelper.console("&6Teleport &a[OK]");
     }
 }

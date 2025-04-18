@@ -9,6 +9,6 @@ public class Debug {
         if (!GeneralHelper.getConfigBool("debugMode")) return;
         GeneralHelper.registerCommand(new DebugCommand());
 
-        MessageHelper.console("&6DebugMode &aenabled.");
+        MessageHelper.console("&6DebugMode &a[ON]");
     }
 }

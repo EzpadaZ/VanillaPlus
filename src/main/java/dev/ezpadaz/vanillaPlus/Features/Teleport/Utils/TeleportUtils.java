@@ -19,12 +19,16 @@ public class TeleportUtils {
             return false; // Falling trap
         }
 
-        if ((atFeet == Material.LAVA || atFeet == Material.LAVA_CAULDRON) && !atFeet.isSolid()) {
+        if ((atFeet == Material.LAVA || atFeet == Material.LAVA_CAULDRON) && !atFeet.isSolid() || below == Material.LAVA) {
             return false; // Lava hazard
         }
 
         if (atFeet.isSolid() && atHead.isSolid()) {
             return false; // Not enough space
+        }
+
+        if (atFeet.isAir() && below.isAir()) {
+            return false;
         }
 
         return true;

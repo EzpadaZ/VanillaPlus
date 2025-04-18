@@ -13,9 +13,10 @@ public class DoubleXP {
     private static boolean eventEnabled = false;
 
     public static ArrayList<String> optedPlayers = new ArrayList<>();
+
     public static void initialize() {
         if (!GeneralHelper.getConfigBool("features.double-xp.enabled")) {
-            MessageHelper.console("DoubleXP is disabled.");
+            MessageHelper.console("&6DoubleXP &c[OFF]");
             return;
         }
 
@@ -25,15 +26,15 @@ public class DoubleXP {
         // Attach Listeners.
         if (GeneralHelper.isPluginPresent("AuraSkills")) {
             GeneralHelper.registerListener(new ASDoubleXPListener());
-            MessageHelper.console("DoubleXP integration with AuraSkills enabled.");
+            MessageHelper.console("&6DoubleXP Integrated with &cAuraSkills");
         }
         GeneralHelper.registerListener(new DoubleXPListener());
-        MessageHelper.console("DoubleXP is enabled.");
+        MessageHelper.console("&6DoubleXP &a[ON]");
     }
 
     public static boolean isPlayerOptedIn(String target) {
-        for(String name : optedPlayers) {
-            if(name.equalsIgnoreCase(target)) {
+        for (String name : optedPlayers) {
+            if (name.equalsIgnoreCase(target)) {
                 return true;
             }
         }
