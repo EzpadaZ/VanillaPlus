@@ -8,6 +8,7 @@
 /Server/logs/
 /Server/versions/
 /Server/config/
+/Server/cache/
 /Server/plugins/
 /build/
 /Server/.console_history
