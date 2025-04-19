@@ -1,5 +1,5 @@
 features:
-  death-chest:
+  graveyard:
     enabled: true
     instant-respawn: true
   double-xp:

@@ -29,18 +29,28 @@ public class TeleportCommand extends BaseCommand {
     @Subcommand("back|regresar|atras")
     @Description("Regresa a la ubicacion anterior a tu viaje")
     public void onTeleportBack(Player sender) {
-        // TODO: Impl back command
+        TeleportManager.getInstance().teleportBack(sender);
     }
 
     @Subcommand("accept|aceptar|a")
     @Description("Acepta alguna peticion pendiente")
-    public void onTeleportAcceptCommand(Player sender) {
-        TeleportManager.getInstance().acceptRequest(sender);
+    public void onTeleportAcceptCommand(Player sender, String[] args) {
+        if (args.length == 0 || args[0].isEmpty()) {
+            MessageHelper.send(sender, "&cPor favor acepta haciendo click en los botones en el chat.");
+            return;
+        }
+
+        TeleportManager.getInstance().acceptRequest(sender, args[0]);
     }
 
     @Subcommand("cancel|cancelar|c")
     @Description("Cancela alguna peticion pendiente")
-    public void onTeleportCancelCommand(Player sender) {
-        TeleportManager.getInstance().cancelRequest(sender);
+    public void onTeleportCancelCommand(Player sender, String[] args) {
+        if (args.length == 0 || args[0].isEmpty()) {
+            MessageHelper.send(sender, "&cPor favor acepta haciendo click en los botones en el chat.");
+            return;
+        }
+
+        TeleportManager.getInstance().cancelRequest(sender, args[0]);
     }
 }

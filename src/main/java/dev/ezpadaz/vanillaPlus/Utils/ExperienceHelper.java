@@ -55,4 +55,10 @@ public class ExperienceHelper {
         // Return the player's new exp amount
         return newExp;
     }
+
+    public static int addPlayerExp(Player player, int expToAdd) {
+        int currentExp = getPlayerExp(player);
+        player.giveExp(expToAdd);
+        return currentExp + expToAdd;
+    }
 }

@@ -38,7 +38,7 @@ public class DebugCommand extends BaseCommand {
     @Description("Test Effects On You")
     public void onTestExplodeEffectCommand(CommandSender sender) {
         Player target = (Player) sender;
-        EffectHelper.getInstance().explodeEffect(target, 3);
+        EffectHelper.getInstance().explodeEffect(target);
     }
 
     @Subcommand("te dna")
@@ -63,7 +63,7 @@ public class DebugCommand extends BaseCommand {
         GeneralHelper.playSound(Sound.BLOCK_BEACON_POWER_SELECT, target.getLocation());
         SchedulerHelper.scheduleTask(null, () -> {
             EffectHelper.getInstance().strikeLightning(target);
-            EffectHelper.getInstance().explodeEffect(target, 3);
+            EffectHelper.getInstance().explodeEffect(target);
             EffectHelper.getInstance().smokeExplosionEffect(target);
         }, 3);
     }

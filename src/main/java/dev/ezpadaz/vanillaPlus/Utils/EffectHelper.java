@@ -116,14 +116,14 @@ public class EffectHelper {
         SchedulerHelper.scheduleTask(null, effect::cancel, seconds);
     }
 
-    public void explodeEffect(Player player, int seconds) {
+    public void explodeEffect(Player player) {
         CustomExplodeEffect effect = new CustomExplodeEffect(manager);
         effect.setDynamicOrigin(new DynamicLocation(forwardFromPlayer(player, 3)));
         effect.start();
         SchedulerHelper.scheduleTask(null, () -> {
             if (effect.isDone()) return;
             Bukkit.getScheduler().runTask(VanillaPlus.getInstance(), () -> effect.cancel());
-        }, seconds);
+        }, 2);
     }
 
     public static Location forwardFromPlayer(Player player, int blocks) {

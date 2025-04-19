@@ -36,10 +36,16 @@ public class GeneralHelper {
         return VanillaPlus.getInstance().getServer().getPlayer(name);
     }
 
-    public static String generateUUID() {
+    public static String generateUUIDString() {
         long timestamp = Instant.now().toEpochMilli();
         UUID randomUUID = UUID.randomUUID();
         return String.format("%d-%s", timestamp, randomUUID);
+    }
+
+    public static UUID generateUUID() {
+        long timestamp = Instant.now().toEpochMilli();
+        UUID randomUUID = UUID.randomUUID();
+        return randomUUID;
     }
 
     public static double formatDouble(double value) {
@@ -69,7 +75,6 @@ public class GeneralHelper {
                 location.getWorld().playSound(
                         location,
                         sound,
-
                         4.0F,
                         (1.0F + (RandomUtils.random.nextFloat() - RandomUtils.random.nextFloat()) * 0.2F) * 0.7F
                 ));

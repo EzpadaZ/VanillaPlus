@@ -1,18 +1,23 @@
 package dev.ezpadaz.vanillaPlus.Features.Teleport.Utils;
 
+import dev.ezpadaz.vanillaPlus.Utils.EffectHelper;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
@@ -21,7 +26,8 @@ public class TeleportManager {
     private static final TeleportManager INSTANCE = new TeleportManager();
 
     private final Map<UUID, Location> backLocations = new HashMap<>();
-    private final Map<UUID, TeleportRequest> requests = new HashMap<>();
+    private final Map<String, TeleportRequest> requests = new HashMap<>();
+    private final Map<String, Integer> activeTasks = new HashMap<>();
 
     private int TELEPORT_THRESHOLD = 0;
     private int TELEPORT_DELAY = 0;
@@ -39,30 +45,35 @@ public class TeleportManager {
         TELEPORT_DELAY = GeneralHelper.getConfigInt("features.teleport.delay");
         TELEPORT_THRESHOLD = GeneralHelper.getConfigInt("features.teleport.threshold");
         TELEPORT_COST_EXP = GeneralHelper.getConfigBool("features.teleport.should-cost-exp");
-        MessageHelper.console("TeleportManager initialized.");
     }
 
     public void sendRequest(Player from, Player to, boolean bring) {
-        TeleportRequest request = new TeleportRequest(from.getUniqueId(), to.getUniqueId(), bring);
+        if (from == to) {
+            MessageHelper.send(from, "&cNo te puedes enviar solicitudes a ti mismo.");
+            return;
+        }
 
-        if (!TeleportUtils.isSafe(from.getLocation())) {
+        UUID requestUUID = GeneralHelper.generateUUID();
+
+        TeleportRequest request = new TeleportRequest(requestUUID.toString(), from.getUniqueId(), to.getUniqueId(), bring);
+
+        if (!TeleportUtils.isSafe(from.getLocation()) && bring) {
             MessageHelper.send(from, "&cTu ubicacion no es segura");
             return;
         }
 
-        requests.put(to.getUniqueId(), request);
+        requests.put(requestUUID.toString(), request);
 
         String actionText = bring
                 ? from.getName() + " quiere que vayas a su ubicación. "
                 : from.getName() + " quiere ir contigo. ";
 
-        Component message = text(actionText).color(GRAY)
-                .append(text("[Aceptar]").color(GREEN).decorate(BOLD)
-                        .clickEvent(ClickEvent.runCommand("/tp accept"))
-                        .hoverEvent(HoverEvent.showText(text("Aceptar solicitud"))))
-                .append(text(" "))
-                .append(text("[Rechazar]").color(RED).decorate(BOLD)
-                        .clickEvent(ClickEvent.runCommand("/tp cancel"))
+        Component message = text(actionText + " ", GRAY).append(Component.newline()) // add space here
+                .append(text("[Aceptar]", GREEN, BOLD)
+                        .clickEvent(ClickEvent.runCommand("/tp accept " + requestUUID))
+                        .hoverEvent(HoverEvent.showText(text("Aceptar solicitud")))).append(space()).append(space())
+                .append(text("[Rechazar]", RED, BOLD)
+                        .clickEvent(ClickEvent.runCommand("/tp cancel " + requestUUID))
                         .hoverEvent(HoverEvent.showText(text("Rechazar solicitud"))));
 
         MessageHelper.console("To: " + to.getName());
@@ -70,46 +81,140 @@ public class TeleportManager {
 
         to.sendMessage(message);
 
-        // TODO: Implement saving the scheduler task ID
-        // It needs to check prior to deleting something if it wasnt previously deleted.
+        Integer teleportTaskID = SchedulerHelper.scheduleTask(requestUUID.toString(), () -> {
+            MessageHelper.console("Request deleted");
+            requests.remove(requestUUID.toString());
 
-        SchedulerHelper.scheduleTask(null, () -> {
-            requests.remove(to.getUniqueId());
-            MessageHelper.send(to, "&cLa solicitud de &6" + from.getName() + "&c ha caducado.");
-        }, 20L * TELEPORT_THRESHOLD);
+            if (to.isOnline()) {
+                MessageHelper.send(to, "&cLa solicitud de &6" + from.getName() + "&c ha caducado.");
+            }
+
+            if (from.isOnline()) {
+                MessageHelper.send(from, "&cLa solicitud hacia &6" + to.getName() + "&c ha caducado.");
+            }
+        }, TELEPORT_THRESHOLD);
+
+        activeTasks.put(requestUUID.toString(), teleportTaskID);
     }
 
-    public void acceptRequest(Player target) {
-        TeleportRequest request = requests.get(target.getUniqueId());
+    public void acceptRequest(Player target, String teleportID) {
+        TeleportRequest request = requests.get(teleportID);
         if (request == null) {
             MessageHelper.send(target, "&cNo tienes ninguna solicitud.");
             return;
         }
 
-        teleport(request.from(), request.to(), request.bring());
-        requests.remove(target.getUniqueId());
+        teleport(teleportID);
+        requests.remove(teleportID);
     }
 
-    public void cancelRequest(Player sender) {
-        UUID senderId = sender.getUniqueId();
-        requests.values().removeIf(req -> req.from().equals(senderId));
+    public void cancelRequest(Player sender, String requestUUID) {
+        TeleportRequest request = requests.get(requestUUID);
+        if (request == null) {
+            MessageHelper.send(sender, "&cNo tienes ninguna solicitud para cancelar.");
+            return;
+        }
+
+        requests.remove(requestUUID);
+
+        Integer activeTaskID = activeTasks.remove(requestUUID);
+        if (activeTaskID != null) {
+            SchedulerHelper.cancelTask(activeTaskID);
+            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+        }
+
+        Player origin = Bukkit.getPlayer(request.from());
+
+
+        MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
+
+        if (origin != null) {
+            MessageHelper.send(origin, "&6" + sender.getName() + "&c canceló el viaje.");
+        }
     }
 
-    public void clearRequest(UUID targetId) {
-        requests.remove(targetId);
+    public void teleportBack(Player player) {
+        Location location = backLocations.get(player.getUniqueId());
+
+        if (location == null) {
+            MessageHelper.send(player, "&cNo tienes a donde volver.");
+            return;
+        }
+
+        executeTeleport(player, location);
+        backLocations.remove(player.getUniqueId());
+        MessageHelper.send(player, "&6Has vuelto a tu ubicacion anterior.");
     }
 
-    public void teleport(UUID from, UUID to, boolean bring) {
+    public void teleport(String requestUUID) {
         // bring (to -> from ) | !bring (from <- to)
-        // Should be scheduled for the time interval.
+        // Should be scheduled for the time interval
+        TeleportRequest request = requests.get(requestUUID);
+
+        if (request == null) return;
+
+        Player origin = Bukkit.getPlayer(request.from());
+        Player target = Bukkit.getPlayer(request.to());
+
+        if (origin == null) {
+            if (target != null) {
+                MessageHelper.send(target, "&cEl jugador " + Bukkit.getOfflinePlayer(request.from()).getName() + " está offline.");
+            }
+            return;
+        }
+
+        // This cant happend because the target accepted the TP, we still handle it just in case.
+        if (target == null) {
+            MessageHelper.send(origin, "&cEl jugador " + Bukkit.getOfflinePlayer(request.to()).getName() + " está offline.");
+            return;
+        }
+
+        SchedulerHelper.cancelTask(activeTasks.get(requestUUID));
+        requests.remove(requestUUID);
+
+        Location targetLocation = request.bring() ? origin.getLocation() : target.getLocation();
+
+        if (!TeleportUtils.isSafe(targetLocation)) {
+            String unsafeMsg = "&aLa ubicacion de " + (request.bring() ? origin.getName() : target.getName()) +
+                    " &cno es segura &aen este momento, he cancelado el tp.";
+            MessageHelper.send(origin, unsafeMsg);
+            MessageHelper.send(target, unsafeMsg);
+            return;
+        }
+
+        if (request.bring()) {
+            // Teleport target to origin (from) location.
+            executeTeleport(target, targetLocation);
+            MessageHelper.send(target, "&aSolicitud de viaje completada.");
+        } else {
+            executeTeleport(origin, targetLocation);
+            MessageHelper.send(origin, "&aSolicitud de viaje completada.");
+        }
+    }
+
+    private void executeTeleport(Player target, Location location) {
+        saveBackLocation(target);
+        EffectHelper effectManager = EffectHelper.getInstance();
+        effectManager.smokeEffect(target, TELEPORT_DELAY + 1);
+        GeneralHelper.playSound(Sound.BLOCK_BEACON_POWER_SELECT, target.getLocation());
+        SchedulerHelper.scheduleTask(null, () -> {
+            effectManager.strikeLightning(target.getLocation());
+            effectManager.explodeEffect(target);
+            effectManager.smokeExplosionEffect(target);
+
+            // teleport the player.
+            target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+            // End effects on the other side.
+            effectManager.strikeLightning(target.getLocation());
+            effectManager.explodeEffect(target);
+            effectManager.smokeExplosionEffect(target);
+
+        }, TELEPORT_DELAY);
     }
 
     public void saveBackLocation(Player player) {
         backLocations.put(player.getUniqueId(), player.getLocation());
-    }
-
-    public Location getBackLocation(Player player) {
-        return backLocations.get(player.getUniqueId());
     }
 }
 
