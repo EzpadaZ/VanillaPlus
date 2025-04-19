@@ -1,6 +1,7 @@
 package dev.ezpadaz.vanillaPlus.Features;
 
 import dev.ezpadaz.vanillaPlus.Features.Arbiter.Arbiter;
+import dev.ezpadaz.vanillaPlus.Features.Graveyard.Graveyard;
 import dev.ezpadaz.vanillaPlus.Features.Debug.Debug;
 import dev.ezpadaz.vanillaPlus.Features.DoubleXP.DoubleXP;
 import dev.ezpadaz.vanillaPlus.Features.Teleport.Teleport;
@@ -16,6 +17,7 @@ public class FeatureLoader {
         Teleport.initialize();
         Debug.initialize();
         Arbiter.initialize();
+        Graveyard.initialize();
     }
 
     public static void loadCompletions() {
@@ -27,6 +29,7 @@ public class FeatureLoader {
     }
 
     public static void shutdownAll() {
-
+        // Call death chest save.
+        Graveyard.shutDown();
     }
 }

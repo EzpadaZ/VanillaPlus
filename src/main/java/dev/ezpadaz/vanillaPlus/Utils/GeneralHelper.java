@@ -4,9 +4,7 @@ import co.aikar.commands.BaseCommand;
 import com.google.common.collect.ImmutableList;
 import de.slikey.effectlib.util.RandomUtils;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -18,10 +16,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class GeneralHelper {
@@ -41,10 +36,16 @@ public class GeneralHelper {
         return VanillaPlus.getInstance().getServer().getPlayer(name);
     }
 
-    public static String generateUUID() {
+    public static String generateUUIDString() {
         long timestamp = Instant.now().toEpochMilli();
         UUID randomUUID = UUID.randomUUID();
         return String.format("%d-%s", timestamp, randomUUID);
+    }
+
+    public static UUID generateUUID() {
+        long timestamp = Instant.now().toEpochMilli();
+        UUID randomUUID = UUID.randomUUID();
+        return randomUUID;
     }
 
     public static double formatDouble(double value) {
@@ -76,6 +77,27 @@ public class GeneralHelper {
                         sound,
                         4.0F,
                         (1.0F + (RandomUtils.random.nextFloat() - RandomUtils.random.nextFloat()) * 0.2F) * 0.7F
+                ));
+    }
+
+    public static void playSound(String namespacedSound, Location location, float volume, float pitchVariation) {
+        Random random = new Random();
+        NamespacedKey key = NamespacedKey.minecraft(namespacedSound.toLowerCase(Locale.ROOT));
+        Sound sound = Registry.SOUNDS.get(key);
+        if (sound == null) return;
+
+        float pitch = 1.0F + (random.nextFloat() - 0.5F) * pitchVariation;
+
+        location.getWorld().playSound(location, sound, volume, pitch);
+    }
+
+    public static void playSound(Sound sound, Location location, float volume, float pitch) {
+        SchedulerHelper.runTask(() ->
+                location.getWorld().playSound(
+                        location,
+                        sound,
+                        volume,
+                        pitch
                 ));
     }
 

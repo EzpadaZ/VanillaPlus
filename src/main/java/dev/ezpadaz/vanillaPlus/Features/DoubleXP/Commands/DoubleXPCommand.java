@@ -5,10 +5,13 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import dev.ezpadaz.vanillaPlus.Features.DoubleXP.DoubleXP;
+import dev.ezpadaz.vanillaPlus.Utils.ExperienceHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+
+import java.text.DecimalFormat;
 
 @CommandAlias("dxp|exp")
 @Description("Administra el modulo de DoubleXP")
@@ -43,6 +46,15 @@ public class DoubleXPCommand extends BaseCommand {
                 MessageHelper.send(p, "Este comando solo corre por consola.");
             }
         }
+    }
+
+    @Subcommand("get|ver|g")
+    @Description("Obtiene tu experiencia actual")
+    public void onGetCommand(Player jugador) {
+        int totalExpPoints = ExperienceHelper.getPlayerExp(jugador);
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        String formattedExp = formatter.format(totalExpPoints);
+        MessageHelper.send(jugador, "Tienes: " + formattedExp + " EXP");
     }
 
     @Subcommand("optin|verxp")

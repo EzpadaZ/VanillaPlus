@@ -1,16 +1,7 @@
-database:
-  target: 'local-mongo'
-  local-backend:
-    uri: "http://localhost:1337/api"
-  local-mongo:
-    uri: 'mongodb://localhost:27017'
-    database: 'minecraft'
-  local:
-    fileName: 'data'
 features:
-  telemetry:
-    player-data: true # Player Login, Exit, Death data
-    player-messages: false # Messages.
+  graveyard:
+    enabled: true
+    instant-respawn: true
   double-xp:
     multiplier: 2
     enabled: true
@@ -19,9 +10,7 @@ features:
     cart-speed-mod: true
     cart-speed-multiplier: 2.5
   teleport:
-    should-cost-material: true
-    material: "gold_ingot"
-    material-cost: 4
+    should-cost-exp: true
     threshold: 60
     delay: 2
     enabled: true
@@ -31,6 +20,6 @@ features:
     min-tps: 17.0
     warning-tps: 18.0
 integration:
-  aurellium-skills: true
-debugMode: false
+  aura-skills: true
+debugMode: true
 owner: "Molthor226" # Change this to your name.

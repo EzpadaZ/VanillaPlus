@@ -29,6 +29,10 @@ public class EffectHelper {
         jugador.getWorld().strikeLightningEffect(jugador.getLocation());
     }
 
+    public void strikeLightning(Location location) {
+        location.getWorld().strikeLightningEffect(location);
+    }
+
     public void smokeEffect(Player jugador, int seconds) {
         CylinderEffect ce = new CylinderEffect(manager);
         ce.setEntity(jugador); // makes it follow the player
@@ -69,6 +73,30 @@ public class EffectHelper {
         se.start();
     }
 
+    public void smokeExplosionEffect(Location location) {
+        SphereEffect se = new SphereEffect(manager) {
+            int tick = 0;
+            final int maxTicks = 10;
+
+            @Override
+            public void onRun() {
+                radius = 0.5f + (tick * 0.30f); // expand radius each tick
+                particle = Particle.CAMPFIRE_COSY_SMOKE;
+                tick++;
+                if (tick >= maxTicks) cancel();
+                super.onRun();
+            }
+        };
+
+        se.setLocation(location.clone().add(0, 1, 0)); // center at chest
+        se.iterations = 10; // run for 10 ticks
+        se.period = 1;      // run every tick
+        se.particles = 20;
+        se.particleOffsetY = 0.0f;
+
+        se.start();
+    }
+
     public void arcEffect(Player player, int seconds) {
         ArcEffect effect = new ArcEffect(manager);
         effect.setDynamicOrigin(new DynamicLocation(forwardFromPlayer(player, 3)));
@@ -88,14 +116,14 @@ public class EffectHelper {
         SchedulerHelper.scheduleTask(null, effect::cancel, seconds);
     }
 
-    public void explodeEffect(Player player, int seconds) {
+    public void explodeEffect(Player player) {
         CustomExplodeEffect effect = new CustomExplodeEffect(manager);
         effect.setDynamicOrigin(new DynamicLocation(forwardFromPlayer(player, 3)));
         effect.start();
         SchedulerHelper.scheduleTask(null, () -> {
             if (effect.isDone()) return;
             Bukkit.getScheduler().runTask(VanillaPlus.getInstance(), () -> effect.cancel());
-        }, seconds);
+        }, 2);
     }
 
     public static Location forwardFromPlayer(Player player, int blocks) {
