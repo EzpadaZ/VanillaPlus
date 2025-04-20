@@ -233,9 +233,11 @@ public class TeleportManager {
 
         if (request.bring()) {
             // Teleport target to origin (from) location.
+            saveBackLocation(target);
             GeneralHelper.executePlayerTeleport(target, targetLocation, TELEPORT_DELAY);
             MessageHelper.send(target, "&aSolicitud de viaje completada.");
         } else {
+            saveBackLocation(origin);
             GeneralHelper.executePlayerTeleport(origin, targetLocation, TELEPORT_DELAY);
             MessageHelper.send(origin, "&aSolicitud de viaje completada.");
         }
