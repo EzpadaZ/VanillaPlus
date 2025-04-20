@@ -1,7 +1,7 @@
 package dev.ezpadaz.vanillaPlus.Features.Graveyard;
 
 import dev.ezpadaz.vanillaPlus.Features.Graveyard.Listeners.GraveyardListener;
-import dev.ezpadaz.vanillaPlus.Features.Graveyard.Manager.DeathManager;
+import dev.ezpadaz.vanillaPlus.Features.Graveyard.Manager.GraveManager;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 
 public class Graveyard {
@@ -11,11 +11,11 @@ public class Graveyard {
             return;
         }
 
-        DeathManager.loadGravesFromFile();
+        GraveManager.loadGravesFromFile();
         GeneralHelper.registerListener(new GraveyardListener());
     }
 
     public static void shutDown() {
-        DeathManager.saveGravesToFile();
+        GraveManager.saveGravesToFile();
     }
 }
