@@ -105,6 +105,7 @@ public class DeathManager {
             try (FileWriter writer = new FileWriter(dataFile)) {
                 gson.toJson(toSave, writer);
             }
+            MessageHelper.console("&6Graveyard Data: &a[SAVED]");
         } catch (IOException e) {
             e.printStackTrace();
         }
