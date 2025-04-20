@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class DeathManager {
+public class GraveManager {
     private static final Map<Location, GraveData> graveyard = new HashMap<>();
     private static final File dataFile = new File(VanillaPlus.getInstance().getDataFolder(), "data/deaths/graves.json");
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();

@@ -1,6 +1,6 @@
 package dev.ezpadaz.vanillaPlus.Features.Graveyard.Listeners;
 
-import dev.ezpadaz.vanillaPlus.Features.Graveyard.Manager.DeathManager;
+import dev.ezpadaz.vanillaPlus.Features.Graveyard.Manager.GraveManager;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
@@ -27,7 +27,7 @@ public class GraveyardListener implements Listener {
         // Prevent item and XP drops
         e.getDrops().clear();
         e.setDroppedExp(0);
-        DeathManager.spawnGrave(e.getEntity());
+        GraveManager.spawnGrave(e.getEntity());
 
         if (GeneralHelper.getConfigBool("features.graveyard.instant-respawn")) {
             // Instant respawn is enabled.
@@ -46,19 +46,19 @@ public class GraveyardListener implements Listener {
         Block clicked = event.getClickedBlock();
         if (clicked == null || clicked.getType() != Material.PLAYER_HEAD) return;
 
-        if (!DeathManager.isGrave(clicked.getLocation())) return;
+        if (!GraveManager.isGrave(clicked.getLocation())) return;
 
         event.setCancelled(true);
-        DeathManager.sendGraveInfo(event.getPlayer(), clicked.getLocation());
+        GraveManager.sendGraveInfo(event.getPlayer(), clicked.getLocation());
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.PLAYER_HEAD) {
-            if (DeathManager.isGrave(block.getLocation())) {
+            if (GraveManager.isGrave(block.getLocation())) {
                 event.setCancelled(true);
-                DeathManager.restoreGrave(event.getPlayer(), block.getLocation());
+                GraveManager.restoreGrave(event.getPlayer(), block.getLocation());
             }
         }
     }
@@ -75,6 +75,6 @@ public class GraveyardListener implements Listener {
 
     private boolean isProtectedGrave(Block block) {
         return block.getType() == Material.PLAYER_HEAD &&
-                DeathManager.isGrave(block.getLocation());
+                GraveManager.isGrave(block.getLocation());
     }
 }

@@ -6,6 +6,6 @@ import co.aikar.commands.annotation.Description;
 
 @CommandAlias("deathchest|dc")
 @Description("Informacion sobre los cofres astrales")
-public class DeathChestCommand extends BaseCommand {
+public class GraveyardCommand extends BaseCommand {
 
 }

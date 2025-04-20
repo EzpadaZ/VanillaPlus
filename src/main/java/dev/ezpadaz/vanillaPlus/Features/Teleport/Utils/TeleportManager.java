@@ -13,9 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
@@ -55,7 +53,7 @@ public class TeleportManager {
 
         UUID requestUUID = GeneralHelper.generateUUID();
 
-        TeleportRequest request = new TeleportRequest(requestUUID.toString(), from.getUniqueId(), to.getUniqueId(), bring);
+        TeleportRequest request = new TeleportRequest(requestUUID.toString(), from.getUniqueId(), to.getUniqueId(), bring, GeneralHelper.toISOString(GeneralHelper.getISODate()));
 
         if (!TeleportUtils.isSafe(from.getLocation()) && bring) {
             MessageHelper.send(from, "&cTu ubicacion no es segura");
@@ -75,9 +73,6 @@ public class TeleportManager {
                 .append(text("[Rechazar]", RED, BOLD)
                         .clickEvent(ClickEvent.runCommand("/tp cancel " + requestUUID))
                         .hoverEvent(HoverEvent.showText(text("Rechazar solicitud"))));
-
-        MessageHelper.console("To: " + to.getName());
-        MessageHelper.console("From: " + from.getName());
 
         to.sendMessage(message);
 
@@ -104,11 +99,61 @@ public class TeleportManager {
             return;
         }
 
+        Integer activeTaskID = activeTasks.remove(teleportID);
+        if (activeTaskID != null) {
+            SchedulerHelper.cancelTask(activeTaskID);
+            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+        }
+
         teleport(teleportID);
         requests.remove(teleportID);
     }
 
+    public void acceptRequest(Player target) {
+        String requestID = getLatestTeleportRequest(target);
+
+        if (requestID.isEmpty()) {
+            return;
+        }
+
+        Integer activeTaskID = activeTasks.remove(requestID);
+        if (activeTaskID != null) {
+            SchedulerHelper.cancelTask(activeTaskID);
+            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+        }
+
+        teleport(requestID);
+        requests.remove(requestID);
+    }
+
     public void cancelRequest(Player sender, String requestUUID) {
+        TeleportRequest request = requests.get(requestUUID);
+        if (request == null) {
+            MessageHelper.send(sender, "&cNo tienes ninguna solicitud para cancelar.");
+            return;
+        }
+
+        requests.remove(requestUUID);
+
+        Integer activeTaskID = activeTasks.remove(requestUUID);
+        if (activeTaskID != null) {
+            SchedulerHelper.cancelTask(activeTaskID);
+            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+        }
+
+        Player origin = Bukkit.getPlayer(request.from());
+
+
+        MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
+
+        if (origin != null) {
+            MessageHelper.send(origin, "&6" + sender.getName() + "&c canceló el viaje.");
+        }
+    }
+
+    public void cancelRequest(Player sender) {
+        String requestUUID = getLatestTeleportRequest(sender);
+
         TeleportRequest request = requests.get(requestUUID);
         if (request == null) {
             MessageHelper.send(sender, "&cNo tienes ninguna solicitud para cancelar.");
@@ -169,7 +214,11 @@ public class TeleportManager {
             return;
         }
 
-        SchedulerHelper.cancelTask(activeTasks.get(requestUUID));
+        Integer taskID = activeTasks.remove(requestUUID);
+        if (taskID != null) {
+            SchedulerHelper.cancelTask(taskID);
+        }
+
         requests.remove(requestUUID);
 
         Location targetLocation = request.bring() ? origin.getLocation() : target.getLocation();
@@ -194,6 +243,20 @@ public class TeleportManager {
 
     public void saveBackLocation(Player player) {
         backLocations.put(player.getUniqueId(), player.getLocation());
+    }
+
+    public String getLatestTeleportRequest(Player player) {
+        // No UUID provided, find latest request
+        Optional<TeleportRequest> latest = requests.values().stream()
+                .filter(r -> r.to().equals(player.getUniqueId()))
+                .max(Comparator.comparing(TeleportRequest::cdate));
+
+        if (latest.isEmpty()) {
+            MessageHelper.send(player, "&cNo tienes solicitudes pendientes.");
+            return "";
+        }
+
+        return latest.get().requestUUID();
     }
 }
 

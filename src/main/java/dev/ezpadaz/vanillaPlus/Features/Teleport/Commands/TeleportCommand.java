@@ -36,7 +36,7 @@ public class TeleportCommand extends BaseCommand {
     @Description("Acepta alguna peticion pendiente")
     public void onTeleportAcceptCommand(Player sender, String[] args) {
         if (args.length == 0 || args[0].isEmpty()) {
-            MessageHelper.send(sender, "&cPor favor acepta haciendo click en los botones en el chat.");
+            TeleportManager.getInstance().acceptRequest(sender);
             return;
         }
 
@@ -47,10 +47,9 @@ public class TeleportCommand extends BaseCommand {
     @Description("Cancela alguna peticion pendiente")
     public void onTeleportCancelCommand(Player sender, String[] args) {
         if (args.length == 0 || args[0].isEmpty()) {
-            MessageHelper.send(sender, "&cPor favor acepta haciendo click en los botones en el chat.");
+            TeleportManager.getInstance().cancelRequest(sender);
             return;
         }
-
         TeleportManager.getInstance().cancelRequest(sender, args[0]);
     }
 }
