@@ -1,4 +1,8 @@
 features:
+  homes:
+    enabled: true
+    max-homes: 2
+    delay: 2
   graveyard:
     enabled: true
     instant-respawn: true
@@ -10,7 +14,6 @@ features:
     cart-speed-mod: true
     cart-speed-multiplier: 2.5
   teleport:
-    should-cost-exp: true
     threshold: 60
     delay: 2
     enabled: true

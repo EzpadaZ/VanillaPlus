@@ -7,6 +7,7 @@ import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.text.DecimalFormat;
@@ -78,6 +79,26 @@ public class GeneralHelper {
                         4.0F,
                         (1.0F + (RandomUtils.random.nextFloat() - RandomUtils.random.nextFloat()) * 0.2F) * 0.7F
                 ));
+    }
+
+    public static void executePlayerTeleport(Player target, Location location, int delay) {
+        EffectHelper effectManager = EffectHelper.getInstance();
+        effectManager.smokeEffect(target, delay + 1);
+        GeneralHelper.playSound(Sound.BLOCK_BEACON_POWER_SELECT, target.getLocation());
+        SchedulerHelper.scheduleTask(null, () -> {
+            effectManager.strikeLightning(target.getLocation());
+            effectManager.explodeEffect(target);
+            effectManager.smokeExplosionEffect(target);
+
+            // teleport the player.
+            target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+            // End effects on the other side.
+            effectManager.strikeLightning(target.getLocation());
+            effectManager.explodeEffect(target);
+            effectManager.smokeExplosionEffect(target);
+
+        }, delay);
     }
 
     public static void playSound(String namespacedSound, Location location, float volume, float pitchVariation) {

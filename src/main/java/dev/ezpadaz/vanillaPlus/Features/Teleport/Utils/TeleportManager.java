@@ -141,7 +141,7 @@ public class TeleportManager {
             return;
         }
 
-        executeTeleport(player, location);
+        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY);
         backLocations.remove(player.getUniqueId());
         MessageHelper.send(player, "&6Has vuelto a tu ubicacion anterior.");
     }
@@ -163,7 +163,7 @@ public class TeleportManager {
             return;
         }
 
-        // This cant happend because the target accepted the TP, we still handle it just in case.
+        // This cant happen because the target accepted the TP, we still handle it just in case.
         if (target == null) {
             MessageHelper.send(origin, "&cEl jugador " + Bukkit.getOfflinePlayer(request.to()).getName() + " está offline.");
             return;
@@ -184,33 +184,12 @@ public class TeleportManager {
 
         if (request.bring()) {
             // Teleport target to origin (from) location.
-            executeTeleport(target, targetLocation);
+            GeneralHelper.executePlayerTeleport(target, targetLocation, TELEPORT_DELAY);
             MessageHelper.send(target, "&aSolicitud de viaje completada.");
         } else {
-            executeTeleport(origin, targetLocation);
+            GeneralHelper.executePlayerTeleport(origin, targetLocation, TELEPORT_DELAY);
             MessageHelper.send(origin, "&aSolicitud de viaje completada.");
         }
-    }
-
-    private void executeTeleport(Player target, Location location) {
-        saveBackLocation(target);
-        EffectHelper effectManager = EffectHelper.getInstance();
-        effectManager.smokeEffect(target, TELEPORT_DELAY + 1);
-        GeneralHelper.playSound(Sound.BLOCK_BEACON_POWER_SELECT, target.getLocation());
-        SchedulerHelper.scheduleTask(null, () -> {
-            effectManager.strikeLightning(target.getLocation());
-            effectManager.explodeEffect(target);
-            effectManager.smokeExplosionEffect(target);
-
-            // teleport the player.
-            target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-            // End effects on the other side.
-            effectManager.strikeLightning(target.getLocation());
-            effectManager.explodeEffect(target);
-            effectManager.smokeExplosionEffect(target);
-
-        }, TELEPORT_DELAY);
     }
 
     public void saveBackLocation(Player player) {
