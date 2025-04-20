@@ -11,8 +11,6 @@ features:
     enabled: true
   enhancements:
     allow-any-books-in-bookshelf: true
-    cart-speed-mod: true
-    cart-speed-multiplier: 2.5
   teleport:
     threshold: 60
     delay: 2
