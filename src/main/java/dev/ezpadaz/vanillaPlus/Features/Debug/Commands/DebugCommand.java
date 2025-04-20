@@ -78,13 +78,6 @@ public class DebugCommand extends BaseCommand {
         Sound sound = key != null ? Registry.SOUNDS.get(key) : null;
 
         if (sound == null) {
-            try {
-                sound = Sound.valueOf(soundName.toUpperCase());
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-
-        if (sound == null) {
             MessageHelper.send(target, "&cSonido inválido: &e" + soundName);
             return;
         }

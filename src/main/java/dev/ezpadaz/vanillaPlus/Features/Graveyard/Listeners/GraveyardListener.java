@@ -2,9 +2,13 @@ package dev.ezpadaz.vanillaPlus.Features.Graveyard.Listeners;
 
 import dev.ezpadaz.vanillaPlus.Features.Graveyard.Manager.GraveManager;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
+import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
+import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +18,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -21,20 +26,27 @@ public class GraveyardListener implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
-        // Set event for death saving chest.
         Player player = e.getEntity();
 
-        // Prevent item and XP drops
-        e.getDrops().clear();
-        e.setDroppedExp(0);
-        GraveManager.spawnGrave(e.getEntity());
+        // Skip grave in the End
+        if (player.getWorld().getEnvironment() != World.Environment.THE_END) {
+            // Prevent item and XP drops
+            e.getDrops().clear();
+            e.setDroppedExp(0);
+            GraveManager.spawnGrave(player);
 
-        if (GeneralHelper.getConfigBool("features.graveyard.instant-respawn")) {
-            // Instant respawn is enabled.
-            Bukkit.getScheduler().runTaskLater(VanillaPlus.getInstance(), () -> {
-                player.spigot().respawn();
-                GeneralHelper.playSound("particle.soul_escape", player.getLocation(), 10.0f, 0.4f);
-            }, 1L);
+            if (GeneralHelper.getConfigBool("features.graveyard.instant-respawn")) {
+                Bukkit.getScheduler().runTaskLater(VanillaPlus.getInstance(), () -> {
+                    player.spigot().respawn();
+                    player.setInvulnerable(true);
+                    player.setGlowing(true);
+                    SchedulerHelper.scheduleTask(null, () -> {
+                        player.setInvulnerable(false);
+                        player.setGlowing(false);
+                    }, 2);
+                    GeneralHelper.playSound("particle.soul_escape", player.getLocation(), 10.0f, 0.4f);
+                }, 1L);
+            }
         }
     }
 
@@ -50,6 +62,16 @@ public class GraveyardListener implements Listener {
 
         event.setCancelled(true);
         GraveManager.sendGraveInfo(event.getPlayer(), clicked.getLocation());
+    }
+
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent event) {
+        Player player = event.getPlayer();
+        World.Environment environment = player.getWorld().getEnvironment();
+
+        if (environment == World.Environment.THE_END) {
+            MessageHelper.send(player, "&cLas tumbas no se generan en El End.");
+        }
     }
 
     @EventHandler

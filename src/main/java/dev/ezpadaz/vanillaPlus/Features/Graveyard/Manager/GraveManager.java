@@ -9,6 +9,7 @@ import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -33,14 +34,23 @@ public class GraveManager {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static void spawnGrave(Player player) {
-        Location loc = player.getLocation().getBlock().getLocation(); // snap to block
+        Location deathLoc = player.getLocation().getBlock().getLocation(); // snap to block
+        Location graveLoc = findFirstAirAbove(deathLoc);
 
-        loc.getBlock().setType(Material.PLAYER_HEAD);
-        Skull skull = (Skull) loc.getBlock().getState();
+        if (graveLoc == null) {
+            MessageHelper.send(player, "&cNo se pudo encontrar un lugar adecuado para colocar la tumba.");
+            return;
+        }
+
+        graveLoc.getBlock().setType(Material.PLAYER_HEAD);
+        Skull skull = (Skull) graveLoc.getBlock().getState();
         skull.setOwningPlayer(player);
         skull.update(); // apply the skull change
 
-        ItemStack[] armor = new ItemStack[] {
+        MessageHelper.send(player, "&7Tu tumba ha sido colocada en &e" +
+                graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ());
+
+        ItemStack[] armor = new ItemStack[]{
                 player.getInventory().getBoots(),
                 player.getInventory().getLeggings(),
                 player.getInventory().getChestplate(),
@@ -51,7 +61,7 @@ public class GraveManager {
         String armorString = InventoryHelper.toBase64(armor);
         String offhand = InventoryHelper.toBase64(new ItemStack[]{player.getInventory().getItemInOffHand()});
 
-        graveyard.put(loc, new GraveData(
+        graveyard.put(graveLoc, new GraveData(
                 player.getUniqueId(),
                 contents,
                 armorString,
@@ -138,6 +148,19 @@ public class GraveManager {
     private static Location deserializeLocation(String str) {
         String[] parts = str.split(",");
         return new Location(Bukkit.getWorld(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+    }
+
+    private static Location findFirstAirAbove(Location loc) {
+        World world = loc.getWorld();
+        int startY = loc.getBlockY();
+
+        for (int y = startY; y < world.getMaxHeight(); y++) {
+            Location check = new Location(world, loc.getX(), y, loc.getZ());
+            if (check.getBlock().getType() == Material.AIR) {
+                return check;
+            }
+        }
+        return null;
     }
 
     public static boolean isGrave(Location location) {

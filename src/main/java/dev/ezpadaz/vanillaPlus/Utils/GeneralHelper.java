@@ -90,13 +90,26 @@ public class GeneralHelper {
             effectManager.explodeEffect(target);
             effectManager.smokeExplosionEffect(target);
 
+            target.setFallDistance(0f);
+            target.setInvulnerable(true);
+            target.setGlowing(true);
+
             // teleport the player.
-            target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            try {
+                target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            } catch (Exception ignored) {
+                MessageHelper.console("Teleport failed with error: " + ignored.getMessage());
+            }
 
             // End effects on the other side.
             effectManager.strikeLightning(target.getLocation());
             effectManager.explodeEffect(target);
             effectManager.smokeExplosionEffect(target);
+
+            SchedulerHelper.scheduleTask(null, () -> {
+                target.setInvulnerable(false);
+                target.setGlowing(false);
+            }, 2);
 
         }, delay);
     }
