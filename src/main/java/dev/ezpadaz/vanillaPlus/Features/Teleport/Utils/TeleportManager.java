@@ -7,6 +7,8 @@ import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -76,6 +78,8 @@ public class TeleportManager {
 
         to.sendMessage(message);
 
+        MessageHelper.send(from, "&aSe ha enviado la solicitud.");
+
         Integer teleportTaskID = SchedulerHelper.scheduleTask(requestUUID.toString(), () -> {
             MessageHelper.console("Request deleted");
             requests.remove(requestUUID.toString());
@@ -105,6 +109,10 @@ public class TeleportManager {
             MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
 
+        Player origin = Bukkit.getPlayer(request.from());
+        MessageHelper.send(origin, "&aAceptaron tu solicitud.");
+        MessageHelper.send(target, "&aAceptaste la solicitud.");
+
         teleport(teleportID);
         requests.remove(teleportID);
     }
@@ -121,6 +129,11 @@ public class TeleportManager {
             SchedulerHelper.cancelTask(activeTaskID);
             MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
+
+        TeleportRequest request = requests.get(requestID);
+        Player origin = Bukkit.getPlayer(request.from());
+        MessageHelper.send(origin, "&aAceptaron tu solicitud.");
+        MessageHelper.send(target, "&aAceptaste la solicitud.");
 
         teleport(requestID);
         requests.remove(requestID);
@@ -186,9 +199,8 @@ public class TeleportManager {
             return;
         }
 
-        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY);
+        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY, "&6Has vuelto a tu ubicacion anterior.");
         backLocations.remove(player.getUniqueId());
-        MessageHelper.send(player, "&6Has vuelto a tu ubicacion anterior.");
     }
 
     public void teleport(String requestUUID) {
@@ -235,16 +247,36 @@ public class TeleportManager {
             // Teleport target to origin (from) location.
             saveBackLocation(target);
             GeneralHelper.executePlayerTeleport(target, targetLocation, TELEPORT_DELAY);
-            MessageHelper.send(target, "&aSolicitud de viaje completada.");
         } else {
             saveBackLocation(origin);
             GeneralHelper.executePlayerTeleport(origin, targetLocation, TELEPORT_DELAY);
-            MessageHelper.send(origin, "&aSolicitud de viaje completada.");
         }
     }
 
     public void saveBackLocation(Player player) {
+        if (backLocations.containsKey(player.getUniqueId())) {
+            backLocations.remove(player.getUniqueId());
+        }
+
         backLocations.put(player.getUniqueId(), player.getLocation());
+
+        // Send clickable message
+        Component message = Component.text("Puedes regresar a tu ubicacion dando click ")
+                .color(NamedTextColor.GRAY)
+                .append(Component.text("[Aqui]")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.BOLD)
+                        .clickEvent(ClickEvent.runCommand("/tp back"))
+                        .hoverEvent(HoverEvent.showText(Component.text("Volver a la ubicación anterior"))))
+                .append(Component.text(" o escribiendo /tp back").color(NamedTextColor.GRAY));
+
+        player.sendMessage(message);
+
+        // Schedule expiration
+        SchedulerHelper.scheduleTask(null, () -> {
+            MessageHelper.send(player, "&aTu ubicacion para regresar ha &ccaducado.");
+            backLocations.remove(player.getUniqueId());
+        }, 300);
     }
 
     public String getLatestTeleportRequest(Player player) {

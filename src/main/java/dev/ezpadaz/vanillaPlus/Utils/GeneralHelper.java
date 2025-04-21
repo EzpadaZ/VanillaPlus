@@ -114,6 +114,39 @@ public class GeneralHelper {
         }, delay);
     }
 
+    public static void executePlayerTeleport(Player target, Location location, int delay, String message) {
+        EffectHelper effectManager = EffectHelper.getInstance();
+        effectManager.smokeEffect(target, delay + 1);
+        GeneralHelper.playSound(Sound.BLOCK_BEACON_POWER_SELECT, target.getLocation());
+        SchedulerHelper.scheduleTask(null, () -> {
+            effectManager.strikeLightning(target.getLocation());
+            effectManager.explodeEffect(target);
+            effectManager.smokeExplosionEffect(target);
+
+            target.setFallDistance(0f);
+            target.setInvulnerable(true);
+            target.setGlowing(true);
+
+            // teleport the player.
+            try {
+                target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            } catch (Exception ignored) {
+                MessageHelper.console("Teleport failed with error: " + ignored.getMessage());
+            }
+
+            // End effects on the other side.
+            effectManager.strikeLightning(target.getLocation());
+            effectManager.explodeEffect(target);
+            effectManager.smokeExplosionEffect(target);
+
+            SchedulerHelper.scheduleTask(null, () -> {
+                target.setInvulnerable(false);
+                target.setGlowing(false);
+            }, 2);
+
+        }, delay);
+    }
+
     public static void playSound(String namespacedSound, Location location, float volume, float pitchVariation) {
         Random random = new Random();
         NamespacedKey key = NamespacedKey.minecraft(namespacedSound.toLowerCase(Locale.ROOT));
