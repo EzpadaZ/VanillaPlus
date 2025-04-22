@@ -7,9 +7,9 @@ plugins {
 }
 
 group = 'dev.ezpadaz'
-version = '1.0.1'
+version = '1.0.3'
 
-def baseVersion = '1.0.1'
+def baseVersion = '1.0.3'
 def timestamp = new Date().format("yyyyMMddHHmm")
 version = "${baseVersion}+${timestamp}"
 
@@ -69,6 +69,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'com.elmakers.mine.bukkit:EffectLib:10.2'
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
+    compileOnly 'dev.aurelium:auraskills-api-bukkit:2.2.4'
 }
 
 tasks {

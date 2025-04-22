@@ -1,5 +1,6 @@
 package dev.ezpadaz.vanillaPlus.Features.Teleport.Utils;
 
+import com.mojang.brigadier.Message;
 import dev.ezpadaz.vanillaPlus.Utils.EffectHelper;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
@@ -7,6 +8,8 @@ import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -45,6 +48,18 @@ public class TeleportManager {
         TELEPORT_COST_EXP = GeneralHelper.getConfigBool("features.teleport.should-cost-exp");
     }
 
+    public void clearQueue() {
+        for (Map.Entry<String, TeleportRequest> entry : requests.entrySet()) {
+            String requestUUID = entry.getKey();
+            Integer activeTaskID = activeTasks.remove(requestUUID);
+            if (activeTaskID != null) {
+                SchedulerHelper.cancelTask(activeTaskID);
+                MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+            }
+        }
+        requests.clear();
+    }
+
     public void sendRequest(Player from, Player to, boolean bring) {
         if (from == to) {
             MessageHelper.send(from, "&cNo te puedes enviar solicitudes a ti mismo.");
@@ -66,7 +81,7 @@ public class TeleportManager {
                 ? from.getName() + " quiere que vayas a su ubicación. "
                 : from.getName() + " quiere ir contigo. ";
 
-        Component message = text(actionText + " ", GRAY).append(Component.newline()) // add space here
+        Component targetMessage = text(actionText + " ", GRAY).append(Component.newline()) // add space here
                 .append(text("[Aceptar]", GREEN, BOLD)
                         .clickEvent(ClickEvent.runCommand("/tp accept " + requestUUID))
                         .hoverEvent(HoverEvent.showText(text("Aceptar solicitud")))).append(space()).append(space())
@@ -74,7 +89,14 @@ public class TeleportManager {
                         .clickEvent(ClickEvent.runCommand("/tp cancel " + requestUUID))
                         .hoverEvent(HoverEvent.showText(text("Rechazar solicitud"))));
 
-        to.sendMessage(message);
+        to.sendMessage(targetMessage);
+
+        Component originMessage = Component.text("Se ha enviado la solicitud. ").color(NamedTextColor.GREEN)
+                .append(Component.text("[Cancelar]").color(NamedTextColor.RED).decorate(TextDecoration.BOLD)
+                        .clickEvent(ClickEvent.runCommand("/tp cancel " + requestUUID))
+                        .hoverEvent(HoverEvent.showText(Component.text("Cancelar la solicitud"))));
+
+        from.sendMessage(originMessage);
 
         Integer teleportTaskID = SchedulerHelper.scheduleTask(requestUUID.toString(), () -> {
             MessageHelper.console("Request deleted");
@@ -88,7 +110,6 @@ public class TeleportManager {
                 MessageHelper.send(from, "&cLa solicitud hacia &6" + to.getName() + "&c ha caducado.");
             }
         }, TELEPORT_THRESHOLD);
-
         activeTasks.put(requestUUID.toString(), teleportTaskID);
     }
 
@@ -104,6 +125,10 @@ public class TeleportManager {
             SchedulerHelper.cancelTask(activeTaskID);
             MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
+
+        Player origin = Bukkit.getPlayer(request.from());
+        MessageHelper.send(origin, "&aAceptaron tu solicitud.");
+        MessageHelper.send(target, "&aAceptaste la solicitud.");
 
         teleport(teleportID);
         requests.remove(teleportID);
@@ -122,16 +147,25 @@ public class TeleportManager {
             MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
 
+        TeleportRequest request = requests.get(requestID);
+        Player origin = Bukkit.getPlayer(request.from());
+        MessageHelper.send(origin, "&aAceptaron tu solicitud.");
+        MessageHelper.send(target, "&aAceptaste la solicitud.");
+
         teleport(requestID);
         requests.remove(requestID);
     }
 
     public void cancelRequest(Player sender, String requestUUID) {
         TeleportRequest request = requests.get(requestUUID);
+
         if (request == null) {
-            MessageHelper.send(sender, "&cNo tienes ninguna solicitud para cancelar.");
+            MessageHelper.send(sender, "&cNo tienes ninguna solicitud.");
             return;
         }
+
+        Player origin = Bukkit.getPlayer(request.from());
+        Player target = Bukkit.getPlayer(request.to());
 
         requests.remove(requestUUID);
 
@@ -141,12 +175,13 @@ public class TeleportManager {
             MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
 
-        Player origin = Bukkit.getPlayer(request.from());
 
-
-        MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
-
-        if (origin != null) {
+        if (origin == sender) {
+            // The sender (origin) is cancelling the TP, send the appropiate message.
+            MessageHelper.send(sender, "&cCancelaste la solicitud que enviaste.");
+            MessageHelper.send(target, "&6" + sender.getName() + "&c canceló el viaje.");
+        } else {
+            MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
             MessageHelper.send(origin, "&6" + sender.getName() + "&c canceló el viaje.");
         }
     }
@@ -154,6 +189,11 @@ public class TeleportManager {
     public void cancelRequest(Player sender) {
         String requestUUID = getLatestTeleportRequest(sender);
 
+        if (requestUUID.isEmpty()) {
+            requestUUID = getLatestTeleportRequestFrom(sender);
+            MessageHelper.console("RUID: " + requestUUID);
+        }
+
         TeleportRequest request = requests.get(requestUUID);
         if (request == null) {
             MessageHelper.send(sender, "&cNo tienes ninguna solicitud para cancelar.");
@@ -169,11 +209,14 @@ public class TeleportManager {
         }
 
         Player origin = Bukkit.getPlayer(request.from());
+        Player target = Bukkit.getPlayer(request.to());
 
-
-        MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
-
-        if (origin != null) {
+        if (origin == sender) {
+            // The sender (origin) is cancelling the TP, send the appropiate message.
+            MessageHelper.send(sender, "&cCancelaste la solicitud que enviaste.");
+            MessageHelper.send(target, "&6" + sender.getName() + "&c canceló el viaje.");
+        } else {
+            MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
             MessageHelper.send(origin, "&6" + sender.getName() + "&c canceló el viaje.");
         }
     }
@@ -186,9 +229,8 @@ public class TeleportManager {
             return;
         }
 
-        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY);
+        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY, "&6Has vuelto a tu ubicacion anterior.");
         backLocations.remove(player.getUniqueId());
-        MessageHelper.send(player, "&6Has vuelto a tu ubicacion anterior.");
     }
 
     public void teleport(String requestUUID) {
@@ -235,16 +277,52 @@ public class TeleportManager {
             // Teleport target to origin (from) location.
             saveBackLocation(target);
             GeneralHelper.executePlayerTeleport(target, targetLocation, TELEPORT_DELAY);
-            MessageHelper.send(target, "&aSolicitud de viaje completada.");
         } else {
             saveBackLocation(origin);
             GeneralHelper.executePlayerTeleport(origin, targetLocation, TELEPORT_DELAY);
-            MessageHelper.send(origin, "&aSolicitud de viaje completada.");
         }
     }
 
     public void saveBackLocation(Player player) {
+        if (backLocations.containsKey(player.getUniqueId())) {
+            backLocations.remove(player.getUniqueId());
+        }
+
         backLocations.put(player.getUniqueId(), player.getLocation());
+
+        // Send clickable message
+        Component message = Component.text("Puedes regresar a tu ubicacion dando click ")
+                .color(NamedTextColor.GRAY)
+                .append(Component.text("[Aqui]")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.BOLD)
+                        .clickEvent(ClickEvent.runCommand("/tp back"))
+                        .hoverEvent(HoverEvent.showText(Component.text("Volver a la ubicación anterior"))))
+                .append(Component.text(" o escribiendo /tp back").color(NamedTextColor.GRAY));
+
+        player.sendMessage(message);
+
+        // Schedule expiration
+        SchedulerHelper.scheduleTask(null, () -> {
+            MessageHelper.send(player, "&aTu ubicacion para regresar ha &ccaducado.");
+            backLocations.remove(player.getUniqueId());
+        }, 300);
+    }
+
+    public String getLatestTeleportRequestFrom(Player player) {
+        // No UUID provided, find latest request sent by the player
+        Optional<TeleportRequest> latest = requests.values().stream()
+                .filter(r -> r.from().equals(player.getUniqueId()))
+                .max(Comparator.comparing(TeleportRequest::cdate));
+
+        if (latest.isEmpty()) {
+            MessageHelper.send(player, "&cNo has enviado solicitudes pendientes.");
+            return "";
+        }
+
+        MessageHelper.console("FOUND");
+
+        return latest.get().requestUUID();
     }
 
     public String getLatestTeleportRequest(Player player) {
@@ -254,7 +332,6 @@ public class TeleportManager {
                 .max(Comparator.comparing(TeleportRequest::cdate));
 
         if (latest.isEmpty()) {
-            MessageHelper.send(player, "&cNo tienes solicitudes pendientes.");
             return "";
         }
 
