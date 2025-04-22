@@ -3,6 +3,7 @@ package dev.ezpadaz.vanillaPlus.Features.Commands.Profile;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -27,7 +28,14 @@ public class ProfileCommand extends BaseCommand {
 
     @Subcommand("ver|see")
     @CommandCompletion("@players")
-    public void onProfileOther(Player sender, Player target) {
+    public void onProfileOther(Player sender, String[] args) {
+        Player target = Bukkit.getPlayer(args[0]);
+
+        if (target == null) {
+            MessageHelper.send(sender, "&cEl jugador no existe o no esta conectado.");
+            return;
+        }
+
         List<String> mensajes = new ArrayList<>();
         mensajes.add("&7Nombre: &b" + target.getName());
         mensajes.add("&7Tiempo en esta sesión: &a" + ProfileHelper.getPlaytime(target));
