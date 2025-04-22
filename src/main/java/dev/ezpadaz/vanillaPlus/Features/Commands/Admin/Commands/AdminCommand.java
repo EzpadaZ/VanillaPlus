@@ -10,6 +10,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import java.util.Arrays;
+
 @CommandAlias("admin")
 @CommandPermission("vanillaplus.admin")
 public class AdminCommand extends BaseCommand {
@@ -33,12 +35,10 @@ public class AdminCommand extends BaseCommand {
             Component title = Component.text("Hyper", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD)
                     .append(Component.text("Visor", NamedTextColor.GOLD))
                     .append(Component.text(" :: ", NamedTextColor.DARK_RED))
-                    .append(Component.text(target.getName(), NamedTextColor.GRAY));
+                    .append(Component.text(target.getName(), NamedTextColor.GREEN));
 
-            Inventory copy = Bukkit.createInventory(target, size, title);
-
-            // Copy contents from target
-            copy.setContents(targetInventory.getContents());
+            Inventory copy = Bukkit.createInventory(null, 54, title);
+            copy.setContents(Arrays.copyOf(targetInventory.getContents(), 54));
 
             // Open inventory
             sender.openInventory(copy);

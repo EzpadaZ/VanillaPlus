@@ -1,5 +1,6 @@
 package dev.ezpadaz.vanillaPlus.Features.Commands.Admin;
 
+import dev.ezpadaz.vanillaPlus.Features.Commands.Admin.Commands.AdminCommand;
 import dev.ezpadaz.vanillaPlus.Features.Commands.Admin.Listeners.AdminInventoryListener;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
@@ -21,6 +22,7 @@ public class Admin {
                     .toList();
         });
 
+        GeneralHelper.registerCommand(new AdminCommand());
         GeneralHelper.registerListener(new AdminInventoryListener());
     }
 }

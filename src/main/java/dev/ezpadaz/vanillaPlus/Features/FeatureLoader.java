@@ -1,6 +1,7 @@
 package dev.ezpadaz.vanillaPlus.Features;
 
 import dev.ezpadaz.vanillaPlus.Features.Arbiter.Arbiter;
+import dev.ezpadaz.vanillaPlus.Features.Commands.Admin.Admin;
 import dev.ezpadaz.vanillaPlus.Features.Commands.Miscellaneous;
 import dev.ezpadaz.vanillaPlus.Features.Enhancements.GameplayEnhancer;
 import dev.ezpadaz.vanillaPlus.Features.Graveyard.Graveyard;
@@ -24,6 +25,7 @@ public class FeatureLoader {
         Homes.initialize();
         GameplayEnhancer.initialize();
         Miscellaneous.initialize();
+        Admin.initialize();
     }
 
     public static void loadCompletions() {
