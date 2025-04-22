@@ -17,4 +17,9 @@ public class Teleport {
         TeleportManager.getInstance().initialize();
         MessageHelper.console("&6Teleport &a[OK]");
     }
+
+    public static void shutDown() {
+        // Clear TP Queue.
+        TeleportManager.getInstance().clearQueue();
+    }
 }

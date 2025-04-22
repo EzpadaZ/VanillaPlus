@@ -48,6 +48,18 @@ public class TeleportManager {
         TELEPORT_COST_EXP = GeneralHelper.getConfigBool("features.teleport.should-cost-exp");
     }
 
+    public void clearQueue() {
+        for (Map.Entry<String, TeleportRequest> entry : requests.entrySet()) {
+            String requestUUID = entry.getKey();
+            Integer activeTaskID = activeTasks.remove(requestUUID);
+            if (activeTaskID != null) {
+                SchedulerHelper.cancelTask(activeTaskID);
+                MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+            }
+        }
+        requests.clear();
+    }
+
     public void sendRequest(Player from, Player to, boolean bring) {
         if (from == to) {
             MessageHelper.send(from, "&cNo te puedes enviar solicitudes a ti mismo.");
@@ -164,7 +176,7 @@ public class TeleportManager {
         }
 
 
-        if (origin  == sender) {
+        if (origin == sender) {
             // The sender (origin) is cancelling the TP, send the appropiate message.
             MessageHelper.send(sender, "&cCancelaste la solicitud que enviaste.");
             MessageHelper.send(target, "&6" + sender.getName() + "&c canceló el viaje.");
@@ -179,7 +191,7 @@ public class TeleportManager {
 
         if (requestUUID.isEmpty()) {
             requestUUID = getLatestTeleportRequestFrom(sender);
-            MessageHelper.console("RUID: "+requestUUID);
+            MessageHelper.console("RUID: " + requestUUID);
         }
 
         TeleportRequest request = requests.get(requestUUID);
@@ -199,7 +211,7 @@ public class TeleportManager {
         Player origin = Bukkit.getPlayer(request.from());
         Player target = Bukkit.getPlayer(request.to());
 
-        if (origin  == sender) {
+        if (origin == sender) {
             // The sender (origin) is cancelling the TP, send the appropiate message.
             MessageHelper.send(sender, "&cCancelaste la solicitud que enviaste.");
             MessageHelper.send(target, "&6" + sender.getName() + "&c canceló el viaje.");

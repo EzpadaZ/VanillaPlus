@@ -15,4 +15,8 @@ public class Arbiter {
         Watcher.getInstance().startProtection();
         MessageHelper.console("&6Arbiter &a[OK]");
     }
+
+    public static void shutDown() {
+        Watcher.getInstance().stopWatcher();
+    }
 }
