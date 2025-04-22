@@ -38,17 +38,22 @@ public class GraveManager {
         Location graveLoc = findFirstAirAbove(deathLoc);
 
         if (graveLoc == null) {
-            MessageHelper.send(player, "&cNo se pudo encontrar un lugar adecuado para colocar la tumba.");
+            MessageHelper.send(player, "&cNo se pudo encontrar un lugar adecuado para colocar la tumba, perdiste todo :(");
             return;
         }
+
+        EffectHelper.getInstance().strikeLightning(player);
+        EffectHelper.getInstance().smokeExplosionEffect(player);
 
         graveLoc.getBlock().setType(Material.PLAYER_HEAD);
         Skull skull = (Skull) graveLoc.getBlock().getState();
         skull.setOwningPlayer(player);
         skull.update(); // apply the skull change
 
+        String worldName = graveLoc.getWorld().getName();
         MessageHelper.send(player, "&7Tu tumba ha sido colocada en &e" +
-                graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ());
+                graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ() +
+                " &7en el mundo &e" + worldName);
 
         ItemStack[] armor = new ItemStack[]{
                 player.getInventory().getBoots(),

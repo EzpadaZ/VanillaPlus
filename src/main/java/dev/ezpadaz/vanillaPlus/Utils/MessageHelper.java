@@ -19,9 +19,13 @@ public class MessageHelper {
     }
 
     public static void send(CommandSender sender, String message, String prefix) {
-        String translatedMessage = ChatColor.translateAlternateColorCodes('&', prefix + message);
-        Component component = Component.text(translatedMessage).color(NamedTextColor.WHITE);
-        sender.sendMessage(component);
+        try {
+            String translatedMessage = ChatColor.translateAlternateColorCodes('&', prefix + message);
+            Component component = Component.text(translatedMessage).color(NamedTextColor.WHITE);
+            sender.sendMessage(component);
+        } catch (Exception e) {
+            sendConsole("Failed to send message: " + e.getMessage());
+        }
     }
 
     public static void sendConsole(String message) {
