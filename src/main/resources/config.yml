@@ -1,8 +1,10 @@
 features:
+  admin:
+    enabled: true
   homes:
     enabled: true
-    max-homes: 2
-    delay: 2
+    max-homes: 3
+    delay: 3
   graveyard:
     enabled: true
     instant-respawn: true
