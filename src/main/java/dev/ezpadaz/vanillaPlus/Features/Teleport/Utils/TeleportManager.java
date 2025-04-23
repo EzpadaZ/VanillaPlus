@@ -304,8 +304,11 @@ public class TeleportManager {
 
         // Schedule expiration
         SchedulerHelper.scheduleTask(null, () -> {
-            MessageHelper.send(player, "&aTu ubicacion para regresar ha &ccaducado.");
-            backLocations.remove(player.getUniqueId());
+            Location tempLocation = backLocations.remove(player.getUniqueId());
+
+            if(tempLocation != null) {
+                MessageHelper.send(player, "&aTu ubicacion para regresar ha &ccaducado.");
+            }
         }, 300);
     }
 
