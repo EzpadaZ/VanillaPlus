@@ -32,18 +32,27 @@ public class HomeManager {
         UUID playerId = player.getUniqueId();
         List<HomeData> homes = homeMap.getOrDefault(playerId, new ArrayList<>());
 
-        if (homes.size() >= MAX_HOMES) {
-            MessageHelper.send(player, "&cYa has alcanzado el máximo de hogares permitidos (" + MAX_HOMES + ").");
-            return;
-        }
+        Optional<HomeData> existing = homes.stream()
+                .filter(h -> h.homeName().equalsIgnoreCase(homeName))
+                .findFirst();
 
         SerializableLocation loc = new SerializableLocation(player.getLocation());
-        HomeData newHome = new HomeData(playerId, homeName, loc);
 
-        homes.add(newHome);
-        homeMap.put(playerId, homes);
-
-        MessageHelper.send(player, "&aTu hogar '" + homeName + "' ha sido guardado.");
+        if (existing.isPresent()) {
+            // Update location for existing home
+            homes.remove(existing.get());
+            homes.add(new HomeData(playerId, homeName, loc));
+            homeMap.put(playerId, homes);
+            MessageHelper.send(player, "&aLa ubicación de tu hogar '" + homeName + "' ha sido actualizada.");
+        } else {
+            if (homes.size() >= MAX_HOMES) {
+                MessageHelper.send(player, "&cYa has alcanzado el máximo de hogares permitidos (" + MAX_HOMES + ").");
+                return;
+            }
+            homes.add(new HomeData(playerId, homeName, loc));
+            homeMap.put(playerId, homes);
+            MessageHelper.send(player, "&aTu hogar '" + homeName + "' ha sido guardado.");
+        }
     }
 
     public static void deleteHome(Player player, String homeName) {
