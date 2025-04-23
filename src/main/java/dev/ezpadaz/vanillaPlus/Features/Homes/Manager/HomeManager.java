@@ -143,13 +143,15 @@ public class HomeManager {
         return homes.stream().map(HomeData::homeName).toList();
     }
 
-    public static List<String> getHomeNamesWithPlayer(Player player) {
-        UUID playerId = player.getUniqueId();
-        List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
-        String playerName = player.getName();
-        return homes.stream()
-                .map(home -> home.homeName() + "/" + playerName)
-                .toList();
+    public static List<String> getAllHomeNamesWithPlayer() {
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<UUID, List<HomeData>> entry : homeMap.entrySet()) {
+            String playerName = Bukkit.getOfflinePlayer(entry.getKey()).getName();
+            for (HomeData home : entry.getValue()) {
+                result.add(home.homeName() + "/" + playerName);
+            }
+        }
+        return result;
     }
 
     public static void adminTeleportToUserHome(Player admin, String arg) {

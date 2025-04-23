@@ -22,7 +22,7 @@ public class Homes {
 
         VanillaPlus.getInstance().commandManager.getCommandCompletions().registerCompletion("admin_player_homes", c -> {
             Player player = (Player) c.getSender();
-            return HomeManager.getHomeNamesWithPlayer(player);
+            return HomeManager.getAllHomeNamesWithPlayer();
         });
 
         GeneralHelper.registerCommand(new HomeCommand());
