@@ -2,6 +2,7 @@ package dev.ezpadaz.vanillaPlus.Features.Commands.Admin.Commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import dev.ezpadaz.vanillaPlus.Features.Homes.Manager.HomeManager;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,6 +16,20 @@ import java.util.Arrays;
 @CommandAlias("admin")
 @CommandPermission("vanillaplus.admin")
 public class AdminCommand extends BaseCommand {
+
+    @Subcommand("homes")
+    public class HomeSubCommand extends BaseCommand {
+        @Subcommand("tp")
+        @CommandCompletion("@admin_player_homes")
+        public void onHomeTpCommand(Player player, String[] args) {
+            try {
+                HomeManager.adminTeleportToUserHome(player, args[0]);
+            }catch(Exception e) {
+                MessageHelper.send(player, "&cFallo el teleport.");
+            }
+        }
+    }
+
     @Subcommand("inventory")
     public class InventorySubCommand extends BaseCommand {
 

@@ -10,6 +10,7 @@ import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -140,5 +141,49 @@ public class HomeManager {
         UUID playerId = player.getUniqueId();
         List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
         return homes.stream().map(HomeData::homeName).toList();
+    }
+
+    public static List<String> getHomeNamesWithPlayer(Player player) {
+        UUID playerId = player.getUniqueId();
+        List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
+        String playerName = player.getName();
+        return homes.stream()
+                .map(home -> home.homeName() + "/" + playerName)
+                .toList();
+    }
+
+    public static void adminTeleportToUserHome(Player admin, String arg) {
+        // Split the input: "casa/User1"
+        String[] parts = arg.split("/");
+        if (parts.length != 2) {
+            MessageHelper.send(admin, "&cFormato incorrecto. Usa: hogar/nombreUsuario");
+            return;
+        }
+
+        String homeName = parts[0];
+        String targetPlayerName = parts[1];
+
+        // Try to get the player (online only)
+        Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
+        if (targetPlayer == null) {
+            return;
+        }
+
+        UUID playerId = targetPlayer.getUniqueId();
+        List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
+
+        // Find home by name (case-insensitive)
+        for (HomeData home : homes) {
+            if (home.homeName().equalsIgnoreCase(homeName)) {
+                Location loc = home.location().toBukkitLocation();
+
+                // Teleport admin (sender)
+                GeneralHelper.executePlayerTeleport(admin, loc, TELEPORT_DELAY);
+                MessageHelper.send(admin, "&aHas sido teletransportado a '" + homeName + "' de " + targetPlayerName + ".");
+                return;
+            }
+        }
+
+        MessageHelper.send(admin, "&cNo se encontró un hogar llamado '" + homeName + "' para " + targetPlayerName + ".");
     }
 }

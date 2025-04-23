@@ -20,6 +20,11 @@ public class Homes {
             return HomeManager.getHomeNames(player);
         });
 
+        VanillaPlus.getInstance().commandManager.getCommandCompletions().registerCompletion("admin_player_homes", c -> {
+            Player player = (Player) c.getSender();
+            return HomeManager.getHomeNamesWithPlayer(player);
+        });
+
         GeneralHelper.registerCommand(new HomeCommand());
         HomeManager.MAX_HOMES = GeneralHelper.getConfigInt("features.homes.max-homes");
         HomeManager.TELEPORT_DELAY = GeneralHelper.getConfigInt("features.homes.delay");
