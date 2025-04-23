@@ -12,6 +12,7 @@ import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -155,7 +156,6 @@ public class HomeManager {
     }
 
     public static void adminTeleportToUserHome(Player admin, String arg) {
-        // Split the input: "casa/User1"
         String[] parts = arg.split("/");
         if (parts.length != 2) {
             MessageHelper.send(admin, "&cFormato incorrecto. Usa: hogar/nombreUsuario");
@@ -165,21 +165,13 @@ public class HomeManager {
         String homeName = parts[0];
         String targetPlayerName = parts[1];
 
-        // Try to get the player (online only)
-        Player targetPlayer = Bukkit.getPlayerExact(targetPlayerName);
-        if (targetPlayer == null) {
-            return;
-        }
-
+        OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(targetPlayerName);
         UUID playerId = targetPlayer.getUniqueId();
         List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
 
-        // Find home by name (case-insensitive)
         for (HomeData home : homes) {
             if (home.homeName().equalsIgnoreCase(homeName)) {
                 Location loc = home.location().toBukkitLocation();
-
-                // Teleport admin (sender)
                 GeneralHelper.executePlayerTeleport(admin, loc, TELEPORT_DELAY);
                 MessageHelper.send(admin, "&aHas sido teletransportado a '" + homeName + "' de " + targetPlayerName + ".");
                 return;
