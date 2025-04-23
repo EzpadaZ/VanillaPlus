@@ -50,7 +50,7 @@ public class AdminCommand extends BaseCommand {
             Component title = Component.text("Hyper", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD)
                     .append(Component.text("Visor", NamedTextColor.GOLD))
                     .append(Component.text(" :: ", NamedTextColor.DARK_RED))
-                    .append(Component.text(target.getName(), NamedTextColor.GREEN));
+                    .append(Component.text(target.getName(), NamedTextColor.DARK_GREEN));
 
             Inventory copy = Bukkit.createInventory(null, 54, title);
             copy.setContents(Arrays.copyOf(targetInventory.getContents(), 54));
