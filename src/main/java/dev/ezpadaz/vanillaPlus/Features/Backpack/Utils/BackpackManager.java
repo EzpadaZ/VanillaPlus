@@ -34,7 +34,7 @@ public class BackpackManager {
         String playerName = sender.getName();
         Component title = Component.text()
                 .append(Component.text(playerName + "'s ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text("Backpack", NamedTextColor.GOLD, TextDecoration.BOLD))
+                .append(Component.text("Backpack", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
                 .build();
 
 
