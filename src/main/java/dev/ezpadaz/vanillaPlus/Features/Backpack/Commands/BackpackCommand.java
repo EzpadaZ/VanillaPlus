@@ -10,6 +10,6 @@ import org.bukkit.entity.Player;
 public class BackpackCommand extends BaseCommand {
     @Default
     public void onOpenCommand(Player sender) {
-        BackpackManager.openBackpack(sender);
+        BackpackManager.openBackpack(sender, false);
     }
 }

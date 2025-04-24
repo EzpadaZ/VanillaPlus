@@ -27,23 +27,25 @@ import java.util.UUID;
 public class BackpackManager {
     private static final Map<UUID, Inventory> inventories = new HashMap<>();
 
-    public static void openBackpack(Player sender) {
+    public static void openBackpack(Player sender, boolean readOnly) {
         UUID uuid = sender.getUniqueId();
-        Inventory inv = inventories.get(uuid);
+        Inventory saved = inventories.get(uuid);
 
         String playerName = sender.getName();
         Component title = Component.text()
                 .append(Component.text(playerName + "'s ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text("Backpack", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text(readOnly ? "Backpack (R)" : "Backpack", NamedTextColor.DARK_RED, TextDecoration.BOLD))
                 .build();
 
+        int size = 18;
 
-        if (inv == null) {
-            inv = Bukkit.createInventory(null, 18, title);
-            inventories.put(uuid, inv);
+        Inventory fresh = Bukkit.createInventory(null, size, title);
+        if (saved != null) fresh.setContents(saved.getContents());
+
+        if (!readOnly) {
+            inventories.put(uuid, fresh);
         }
-
-        sender.openInventory(inv);
+        sender.openInventory(fresh);
     }
 
     public static void saveInventoriesToFile() {

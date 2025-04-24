@@ -2,12 +2,15 @@ package dev.ezpadaz.vanillaPlus.Features.Commands.Admin.Commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import dev.ezpadaz.vanillaPlus.Features.Backpack.Utils.BackpackManager;
 import dev.ezpadaz.vanillaPlus.Features.Homes.Manager.HomeManager;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -57,6 +60,22 @@ public class AdminCommand extends BaseCommand {
 
             // Open inventory
             sender.openInventory(copy);
+        }
+    }
+
+    @Subcommand("backpack")
+    public class BackpackSubCommand extends BaseCommand {
+        @Default
+        @CommandCompletion("@players")
+        public void onAdminBackpack(Player sender, String[] args) {
+            Player target = Bukkit.getPlayer(args[0]);
+
+            if (target == null) {
+                MessageHelper.send(sender, "&cEl jugador debe estar en linea.");
+                return;
+            }
+
+            BackpackManager.openBackpack(target, true);
         }
     }
 }

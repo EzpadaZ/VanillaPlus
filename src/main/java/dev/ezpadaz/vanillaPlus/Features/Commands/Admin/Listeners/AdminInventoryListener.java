@@ -9,7 +9,7 @@ public class AdminInventoryListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
-        if (title.contains("HyperVisor")) {
+        if (title.contains("HyperVisor") || title.contains("Backpack (R)")) {
             event.setCancelled(true);
         }
     }
