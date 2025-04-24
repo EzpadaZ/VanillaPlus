@@ -33,15 +33,13 @@ public class BackpackManager {
 
         String playerName = sender.getName();
         Component title = Component.text()
-                .append(Component.text(playerName + "'s ", NamedTextColor.DARK_GREEN, TextDecoration.BOLD))
+                .append(Component.text(playerName + "'s ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
                 .append(Component.text("Backpack", NamedTextColor.GOLD, TextDecoration.BOLD))
                 .build();
 
 
-        // TODO: Maybe i could make the chests be dynamically sized by config,
-        //  this would require verifying sizes and copying items over to new size if needed.
         if (inv == null) {
-            inv = Bukkit.createInventory(null, 72, title);
+            inv = Bukkit.createInventory(null, 18, title);
             inventories.put(uuid, inv);
         }
 
