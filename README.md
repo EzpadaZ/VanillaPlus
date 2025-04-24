@@ -14,26 +14,20 @@ The reasons for resuming development in a new branch are a few but the most impo
 Those were the main reasons i decided to archive the old repo and start this one, wich my only purpose with this is to have:
 
 - Feature Modularization
-- Database agnostic (local, local-mongo, local-backend) 
-  - local = SQLite Integration
-  - local-mongo = The old mongo integration, improved hopefully.
-  - local-backend = Send events via POST request to whatever backend service you desire.
 - Configuration within the plugin, not database dependant.
 - Correct dependency checks instead of doing some vomit-inducing checks like last time.
 
 # Features
 
-#### Old Features that will be finished and or ported from the old system:
-
 - DoubleXP Event with AuraSkills Integration (Done)
 - Travel Commands (Could be improved with language agnostic stuff)
 - Some GameplayEnhancements.
-- ReviveMe Integration (Done)
+- ~~ReviveMe Integration (Done)~~ Replaced by Graveyard System
+- ~~Better Database Integration (SQLite, Mongo and or POST to APIs with events)~~
+  - This was scrapped as i dont see it as a vital feature for the plugin to have and the ROI i get from it is _low_
+- ~~Death Chest~~ **Graveyard System** [**DONE**]
+- ~~Backpack System~~ Mojang Added Bags to the game, having a backpack is too overkill.
+- Admin system to check inventories (usefull when running an SMP and having theft, to check players0) and other silly stuff i can think of.
 
-### New Planned Stuff
-
-- Better Database Integration (SQLite, Mongo and or POST to APIs with events)
-- Death Chest
-- Backpack System
-
-Hopefully i can finish this project this time.
+I am still thinking of stuff to add to the plugin to manage my own server, i'll probably do a lang.yml file since right now the language is spanish (due to the server being in spanish).
+So that's on the list of stuff to do.

@@ -10,7 +10,9 @@ import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -32,18 +34,27 @@ public class HomeManager {
         UUID playerId = player.getUniqueId();
         List<HomeData> homes = homeMap.getOrDefault(playerId, new ArrayList<>());
 
-        if (homes.size() >= MAX_HOMES) {
-            MessageHelper.send(player, "&cYa has alcanzado el máximo de hogares permitidos (" + MAX_HOMES + ").");
-            return;
-        }
+        Optional<HomeData> existing = homes.stream()
+                .filter(h -> h.homeName().equalsIgnoreCase(homeName))
+                .findFirst();
 
         SerializableLocation loc = new SerializableLocation(player.getLocation());
-        HomeData newHome = new HomeData(playerId, homeName, loc);
 
-        homes.add(newHome);
-        homeMap.put(playerId, homes);
-
-        MessageHelper.send(player, "&aTu hogar '" + homeName + "' ha sido guardado.");
+        if (existing.isPresent()) {
+            // Update location for existing home
+            homes.remove(existing.get());
+            homes.add(new HomeData(playerId, homeName, loc));
+            homeMap.put(playerId, homes);
+            MessageHelper.send(player, "&aLa ubicación de tu hogar '" + homeName + "' ha sido actualizada.");
+        } else {
+            if (homes.size() >= MAX_HOMES) {
+                MessageHelper.send(player, "&cYa has alcanzado el máximo de hogares permitidos (" + MAX_HOMES + ").");
+                return;
+            }
+            homes.add(new HomeData(playerId, homeName, loc));
+            homeMap.put(playerId, homes);
+            MessageHelper.send(player, "&aTu hogar '" + homeName + "' ha sido guardado.");
+        }
     }
 
     public static void deleteHome(Player player, String homeName) {
@@ -131,5 +142,42 @@ public class HomeManager {
         UUID playerId = player.getUniqueId();
         List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
         return homes.stream().map(HomeData::homeName).toList();
+    }
+
+    public static List<String> getAllHomeNamesWithPlayer() {
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<UUID, List<HomeData>> entry : homeMap.entrySet()) {
+            String playerName = Bukkit.getOfflinePlayer(entry.getKey()).getName();
+            for (HomeData home : entry.getValue()) {
+                result.add(home.homeName() + "/" + playerName);
+            }
+        }
+        return result;
+    }
+
+    public static void adminTeleportToUserHome(Player admin, String arg) {
+        String[] parts = arg.split("/");
+        if (parts.length != 2) {
+            MessageHelper.send(admin, "&cFormato incorrecto. Usa: hogar/nombreUsuario");
+            return;
+        }
+
+        String homeName = parts[0];
+        String targetPlayerName = parts[1];
+
+        OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(targetPlayerName);
+        UUID playerId = targetPlayer.getUniqueId();
+        List<HomeData> homes = homeMap.getOrDefault(playerId, Collections.emptyList());
+
+        for (HomeData home : homes) {
+            if (home.homeName().equalsIgnoreCase(homeName)) {
+                Location loc = home.location().toBukkitLocation();
+                GeneralHelper.executePlayerTeleport(admin, loc, TELEPORT_DELAY);
+                MessageHelper.send(admin, "&aHas sido teletransportado a '" + homeName + "' de " + targetPlayerName + ".");
+                return;
+            }
+        }
+
+        MessageHelper.send(admin, "&cNo se encontró un hogar llamado '" + homeName + "' para " + targetPlayerName + ".");
     }
 }
