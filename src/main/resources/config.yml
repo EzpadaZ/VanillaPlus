@@ -1,6 +1,8 @@
 features:
   admin:
     enabled: true
+  backpack:
+    enabled: true
   homes:
     enabled: true
     max-homes: 3
