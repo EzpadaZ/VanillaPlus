@@ -75,7 +75,7 @@ public class AdminCommand extends BaseCommand {
                 return;
             }
 
-            BackpackManager.openBackpack(target, true);
+            BackpackManager.openBackpack(sender, target);
         }
     }
 }

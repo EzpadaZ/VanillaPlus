@@ -7,9 +7,9 @@ plugins {
 }
 
 group = 'dev.ezpadaz'
-version = '1.0.4'
+version = '1.0.5'
 
-def baseVersion = '1.0.4'
+def baseVersion = '1.0.5'
 def timestamp = new Date().format("yyyyMMddHHmm")
 version = "${baseVersion}+${timestamp}"
 

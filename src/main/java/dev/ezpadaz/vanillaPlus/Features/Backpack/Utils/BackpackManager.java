@@ -48,6 +48,24 @@ public class BackpackManager {
         sender.openInventory(fresh);
     }
 
+    public static void openBackpack(Player user, Player target){
+        UUID uuid = target.getUniqueId();
+        Inventory saved = inventories.get(uuid);
+
+        String playerName = target.getName();
+        Component title = Component.text()
+                .append(Component.text(playerName + "'s ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("Backpack (R)", NamedTextColor.DARK_RED, TextDecoration.BOLD))
+                .build();
+
+        int size = 18;
+
+        Inventory fresh = Bukkit.createInventory(null, size, title);
+        if (saved != null) fresh.setContents(saved.getContents());
+
+        user.openInventory(fresh);
+    }
+
     public static void saveInventoriesToFile() {
         File file = new File(VanillaPlus.getInstance().getDataFolder(), "data/backpack/save.json");
         file.getParentFile().mkdirs();
