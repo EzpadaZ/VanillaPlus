@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.*;
 import dev.ezpadaz.vanillaPlus.Features.Backpack.Utils.BackpackManager;
 import org.bukkit.entity.Player;
 
-@CommandAlias("backpack")
+@CommandAlias("backpack|mochila|b")
 @CommandPermission("vanillaplus.backpack")
 public class BackpackCommand extends BaseCommand {
     @Default
