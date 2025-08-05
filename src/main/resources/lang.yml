@@ -1,0 +1,15 @@
+features:
+  graveyard:
+    description: "Informacion sobre las tumbas"
+    console-save-success-message: "&6Graveyard Data: &a[SAVED]"
+    console-load-empty-message: "&6Graveyard Data: &c[EMPTY]"
+    console-load-success-message: "&6Graveyard Data: &a[OK]"
+    console-load-error-message: "&6Graveyard Data: &c[ERROR]"
+    date-message-pattern: "dd 'de' MMMM 'a las' HH:mm z"
+    grave-info-message: "&7Esta tumba le pertenece a &e%p&7, contiene &e%x XP&7, murió el &e%d"
+    location-not-found: "&cNo se encontró una tumba en esta ubicación."
+    location-wrong-owner-message: "&cNo puedes reclamar una tumba que no te pertenece."
+    claim-message: "&aTu &cinventario&a y tu &cexperiencia&a han sido restaurados de tu tumba."
+    claim-error-message: "&cError al restaurar la tumba."
+    no-suitable-grave-location-message: "&cNo se pudo encontrar un lugar adecuado para colocar la tumba, perdiste todo :("
+    placed-message: "&7Tu tumba ha sido colocada en &e%l&7en el mundo &e%w"
