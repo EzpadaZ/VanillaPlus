@@ -80,7 +80,7 @@ public class GraveManager {
         GraveData data = graveyard.get(location);
         if (data == null) return;
 
-        if(data.date() == null || data.date().isEmpty()) return;
+        if (data.date() == null || data.date().isEmpty()) return;
 
         try {
             SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -143,6 +143,43 @@ public class GraveManager {
         } catch (IOException e) {
             e.printStackTrace();
             MessageHelper.console("&6Graveyard Data: &c[ERROR]");
+        }
+    }
+
+    public static void startGraveyardDeletionTask() {
+        SchedulerHelper.scheduleRepeatingTask("GRAVEYARD_DELETION_TASK", () -> {
+            try {
+                checkAndDeleteGraveyards();
+            } catch (Exception e) {
+                MessageHelper.console("&6Graveyard Delete Task: &c[ERROR] " + e.getMessage());
+            }
+        }, 60, GeneralHelper.getConfigInt("features.graveyard.check-every-seconds"));
+    }
+
+    public static void stopGraveyardDeletionTask() {
+        SchedulerHelper.cancelTask("GRAVEYARD_DELETION_TASK");
+    }
+
+    private static void checkAndDeleteGraveyards() throws ParseException {
+        // Iterate over graveyard map, check date and compare if time exceeds.
+        int seconds = GeneralHelper.getConfigInt("features.graveyard.delete-after-seconds");
+
+        for (Map.Entry<Location, GraveData> entry : graveyard.entrySet()) {
+            GraveData data = entry.getValue();
+
+            // Check date
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            Date inputDate = format.parse(data.date());
+
+            long diffMillis = System.currentTimeMillis() - inputDate.getTime();
+            long diffSeconds = diffMillis / 1000;
+
+            if (diffSeconds >= seconds) {
+                // Delete grave.
+                Location graveLoc = entry.getKey();
+                graveLoc.getBlock().setType(Material.AIR);
+                removeGrave(graveLoc);
+            }
         }
     }
 

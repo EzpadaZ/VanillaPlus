@@ -6,16 +6,20 @@ import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 
 public class Graveyard {
     public static void initialize() {
-        if(!GeneralHelper.getConfigBool("features.graveyard.enabled")){
-            //MessageHelper.console("Teleport is disabled.");
+        if (!GeneralHelper.getConfigBool("features.graveyard.enabled")) {
             return;
         }
 
         GraveManager.loadGravesFromFile();
         GeneralHelper.registerListener(new GraveyardListener());
+
+        if (GeneralHelper.getConfigBool("features.graveyard.enable-grave-deletion")) {
+            GraveManager.startGraveyardDeletionTask();
+        }
     }
 
     public static void shutDown() {
         GraveManager.saveGravesToFile();
+        GraveManager.stopGraveyardDeletionTask();
     }
 }
