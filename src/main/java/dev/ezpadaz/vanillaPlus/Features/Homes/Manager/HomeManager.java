@@ -45,15 +45,17 @@ public class HomeManager {
             homes.remove(existing.get());
             homes.add(new HomeData(playerId, homeName, loc));
             homeMap.put(playerId, homes);
-            MessageHelper.send(player, "&aLa ubicación de tu hogar '" + homeName + "' ha sido actualizada.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.homes.add-home-update-success")
+                    .replace("%h", homeName));
         } else {
             if (homes.size() >= MAX_HOMES) {
-                MessageHelper.send(player, "&cYa has alcanzado el máximo de hogares permitidos (" + MAX_HOMES + ").");
+                MessageHelper.send(player, GeneralHelper.getLangString("features.homes.add-home-limit-error").replace("%l", MAX_HOMES + ""));
                 return;
             }
             homes.add(new HomeData(playerId, homeName, loc));
             homeMap.put(playerId, homes);
-            MessageHelper.send(player, "&aTu hogar '" + homeName + "' ha sido guardado.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.homes.add-home-success")
+                    .replace("%h", homeName));
         }
     }
 
@@ -62,22 +64,20 @@ public class HomeManager {
         List<HomeData> homes = homeMap.get(playerId);
 
         if (homes == null || homes.isEmpty()) {
-            MessageHelper.send(player, "&cNo tienes hogares guardados.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.homes.delete-home-error"));
             return;
         }
 
         boolean removed = homes.removeIf(home -> home.homeName().equalsIgnoreCase(homeName));
 
         if (removed) {
-            MessageHelper.send(player, "&aTu hogar '" + homeName + "' ha sido eliminado.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.homes.delete-home-success").replace("%h", homeName));
             if (homes.isEmpty()) {
-                homeMap.remove(playerId); // Clean map if no more homes
-            } else {
-                homeMap.put(playerId, homes);
+                homeMap.remove(playerId);
             }
-        } else {
-            MessageHelper.send(player, "&cNo se encontró un hogar llamado '" + homeName + "'.");
         }
+
+        MessageHelper.send(player, GeneralHelper.getLangString("features.homes.delete-home-not-found").replace("%h", homeName));
     }
 
     public static void travelHome(Player player, String homeName) {
@@ -111,7 +111,7 @@ public class HomeManager {
         try (FileWriter writer = new FileWriter(file)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(homeMap, writer);
-            MessageHelper.console("&6Home Data: &a[SAVED]");
+            MessageHelper.console(GeneralHelper.getLangString("features.homes.save-success"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,7 +121,7 @@ public class HomeManager {
         File file = new File(VanillaPlus.getInstance().getDataFolder(), "data/homes/homes.json");
 
         if (!file.exists()) {
-            MessageHelper.console("&6Home Data: &c[EMPTY]");
+            MessageHelper.console(GeneralHelper.getLangString("features.homes.load-empty"));
             return;
         }
 
@@ -131,10 +131,10 @@ public class HomeManager {
             }.getType();
             Map<UUID, List<HomeData>> loaded = gson.fromJson(reader, type);
             if (loaded != null) homeMap.putAll(loaded);
-            MessageHelper.console("&6Home Data: &a[OK]");
+            MessageHelper.console(GeneralHelper.getLangString("features.homes.load-success"));
         } catch (IOException e) {
             e.printStackTrace();
-            MessageHelper.console("&6Home Data: &c[ERROR]");
+            MessageHelper.console(GeneralHelper.getLangString("features.homes.load-error"));
         }
     }
 
@@ -158,7 +158,7 @@ public class HomeManager {
     public static void adminTeleportToUserHome(Player admin, String arg) {
         String[] parts = arg.split("/");
         if (parts.length != 2) {
-            MessageHelper.send(admin, "&cFormato incorrecto. Usa: hogar/nombreUsuario");
+            MessageHelper.send(admin, GeneralHelper.getLangString("features.homes.admin-teleport-format-error"));
             return;
         }
 
@@ -173,11 +173,15 @@ public class HomeManager {
             if (home.homeName().equalsIgnoreCase(homeName)) {
                 Location loc = home.location().toBukkitLocation();
                 GeneralHelper.executePlayerTeleport(admin, loc, TELEPORT_DELAY);
-                MessageHelper.send(admin, "&aHas sido teletransportado a '" + homeName + "' de " + targetPlayerName + ".");
+                MessageHelper.send(admin, GeneralHelper.getLangString("features.homes.admin-teleport-success")
+                        .replace("%h", homeName)
+                        .replace("%p", targetPlayerName));
                 return;
             }
         }
 
-        MessageHelper.send(admin, "&cNo se encontró un hogar llamado '" + homeName + "' para " + targetPlayerName + ".");
+        MessageHelper.send(admin, GeneralHelper.getLangString("features.homes.admin-teleport-not-found")
+                .replace("%h", homeName)
+                .replace("%p", targetPlayerName));
     }
 }

@@ -1,3 +1,4 @@
+version: 1.0
 features:
   admin:
     enabled: true # enables some admin commands.
