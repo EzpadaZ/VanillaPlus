@@ -100,7 +100,7 @@ public class GraveManager {
             String formattedExp = formatter.format(exp);
 
             MessageHelper.send(viewer, GeneralHelper.getLangString("features.graveyard.grave-info-message")
-                    .replace("%p", playerName)
+                    .replace("%p", playerName == null ? "UNKNOWN" : playerName)
                     .replace("%x", formattedExp)
                     .replace("%d", localTime));
         } catch (ParseException e) {

@@ -17,8 +17,8 @@ public final class VanillaPlus extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
         saveLangFile();
+        saveDefaultConfig();
         instance = this;
         commandManager = new PaperCommandManager(this);
         FeatureLoader.loadAll();
@@ -39,9 +39,6 @@ public final class VanillaPlus extends JavaPlugin {
         File langFile = new File(getDataFolder(), "lang.yml");
         if (!langFile.exists()) {
             saveResource("lang.yml", false); // false = don't overwrite existing file
-            MessageHelper.console("&6Lang File: &aCreated from resources.");
-        } else {
-            MessageHelper.console("&6Lang File: &aAlready exists.");
         }
     }
 }

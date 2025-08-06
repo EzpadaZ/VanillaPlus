@@ -12,4 +12,4 @@ features:
     claim-message: "&aTu &cinventario&a y tu &cexperiencia&a han sido restaurados de tu tumba."
     claim-error-message: "&cError al restaurar la tumba."
     no-suitable-grave-location-message: "&cNo se pudo encontrar un lugar adecuado para colocar la tumba, perdiste todo :("
-    placed-message: "&7Tu tumba ha sido colocada en &e%l&7en el mundo &e%w"
+    placed-message: "&7Tu tumba ha sido colocada en &e%l &7en el mundo &e%w"
