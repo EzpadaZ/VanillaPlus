@@ -12,8 +12,8 @@ features:
     tp-origin-confirmation: "Se ha enviado la solicitud."
     tp-origin-action-cancel: "[Cancelar]"
     tp-origin-action-cancel-description: "Cancelar solicitud"
-    tp-target-expired: ""
-    tp-origin-expired: ""
+    tp-target-expired: "&cLa solicitud de &6%p&c ha caducado."
+    tp-origin-expired: "&cLa solicitud hacia &6%p&c ha caducado."
   homes:
     save-success: "&6Datos de hogares: &a[GUARDADOS]"
     load-empty: "&6Datos de hogares: &c[VACÍO]"

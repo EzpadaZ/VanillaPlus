@@ -4,6 +4,7 @@ import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SchedulerHelper {
@@ -25,8 +26,12 @@ public class SchedulerHelper {
      * @return The Bukkit task ID assigned to this scheduled task.
      */
     public static int scheduleRepeatingTask(String name, Runnable task, long delay, long period) {
+        if (name == null || name.isEmpty()) {
+            name = UUID.randomUUID().toString();
+        }
+
         int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(VanillaPlus.getInstance(), task, delay * 20L, period * 20L);
-        if (name != null && !name.isEmpty()) tasks.put(name, taskId);
+        tasks.put(name, taskId);
         return taskId;
     }
 
@@ -48,8 +53,10 @@ public class SchedulerHelper {
     }
 
     public static void cancelAll() {
-        for (int taskId : tasks.values()) {
+        for (Map.Entry<String, Integer> entry : tasks.entrySet()) {
+            int taskId = entry.getValue();
             Bukkit.getScheduler().cancelTask(taskId);
+            MessageHelper.console("&7Task with ID: &e" + taskId + " &7terminated.");
         }
         tasks.clear();
     }

@@ -62,7 +62,7 @@ public class TeleportManager {
 
     public void sendRequest(Player from, Player to, boolean bring) {
         if (from == to) {
-            MessageHelper.send(from, "&cNo te puedes enviar solicitudes a ti mismo.");
+            MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-self"));
             return;
         }
 
@@ -71,49 +71,63 @@ public class TeleportManager {
         TeleportRequest request = new TeleportRequest(requestUUID.toString(), from.getUniqueId(), to.getUniqueId(), bring, GeneralHelper.toISOString(GeneralHelper.getISODate()));
 
         if (!TeleportUtils.isSafe(from.getLocation()) && bring) {
-            MessageHelper.send(from, "&cTu ubicacion no es segura");
+            MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-unsafe-location"));
             return;
         }
 
         requests.put(requestUUID.toString(), request);
 
         String actionText = bring
-                ? from.getName() + " quiere que vayas a su ubicación. "
-                : from.getName() + " quiere ir contigo. ";
+                ? GeneralHelper.getLangString("features.teleport.tp-target-action-bring-true").replace("%o", from.getName())
+                : GeneralHelper.getLangString("features.teleport.tp-target-action-bring-false").replace("%o", from.getName());
 
-        Component targetMessage = text(actionText + " ", GRAY).append(Component.newline()) // add space here
-                .append(text("[Aceptar]", GREEN, BOLD)
+        Component targetMessage = text(actionText + " ", GRAY).append(Component.newline())
+                .append(text(GeneralHelper.getLangString("features.teleport.tp-target-action-accept"), GREEN, BOLD)
                         .clickEvent(ClickEvent.runCommand("/tp accept " + requestUUID))
-                        .hoverEvent(HoverEvent.showText(text("Aceptar solicitud")))).append(space()).append(space())
-                .append(text("[Rechazar]", RED, BOLD)
+                        .hoverEvent(HoverEvent.showText(text(GeneralHelper.getLangString("features.teleport.tp-target-action-accept-description")))))
+                .append(space()).append(space())
+                .append(text(GeneralHelper.getLangString("features.teleport.tp-target-action-reject"), RED, BOLD)
                         .clickEvent(ClickEvent.runCommand("/tp cancel " + requestUUID))
-                        .hoverEvent(HoverEvent.showText(text("Rechazar solicitud"))));
+                        .hoverEvent(HoverEvent.showText(text(GeneralHelper.getLangString("features.teleport.tp-target-action-reject-description")))));
 
         to.sendMessage(targetMessage);
 
-        Component originMessage = Component.text("Se ha enviado la solicitud. ").color(NamedTextColor.GREEN)
-                .append(Component.text("[Cancelar]").color(NamedTextColor.RED).decorate(TextDecoration.BOLD)
+        Component originMessage = Component.text(GeneralHelper.getLangString("features.teleport.tp-origin-confirmation") + " ").color(NamedTextColor.GREEN)
+                .append(Component.text(GeneralHelper.getLangString("features.teleport.tp-origin-action-cancel")).color(NamedTextColor.RED).decorate(TextDecoration.BOLD)
                         .clickEvent(ClickEvent.runCommand("/tp cancel " + requestUUID))
-                        .hoverEvent(HoverEvent.showText(Component.text("Cancelar la solicitud"))));
+                        .hoverEvent(HoverEvent.showText(Component.text(GeneralHelper.getLangString("features.teleport.tp-origin-action-cancel-description")))));
 
         from.sendMessage(originMessage);
 
         Integer teleportTaskID = SchedulerHelper.scheduleTask(requestUUID.toString(), () -> {
-            MessageHelper.console("Request deleted");
             requests.remove(requestUUID.toString());
 
             if (to.isOnline()) {
-                MessageHelper.send(to, "&cLa solicitud de &6" + from.getName() + "&c ha caducado.");
+                MessageHelper.send(to, GeneralHelper.getLangString("features.teleport.tp-target-expired").replace("%p", from.getName()));
             }
 
             if (from.isOnline()) {
-                MessageHelper.send(from, "&cLa solicitud hacia &6" + to.getName() + "&c ha caducado.");
+                MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-origin-expired").replace("%p", to.getName()));
             }
         }, TELEPORT_THRESHOLD);
         activeTasks.put(requestUUID.toString(), teleportTaskID);
     }
 
     public void acceptRequest(Player target, String teleportID) {
+        acceptTeleportRequest(target, teleportID);
+    }
+
+    public void acceptRequest(Player target) {
+        String requestID = getLatestTeleportRequest(target);
+
+        if (requestID.isEmpty()) {
+            return;
+        }
+
+        acceptTeleportRequest(target, requestID);
+    }
+
+    private void acceptTeleportRequest(Player target, String teleportID) {
         TeleportRequest request = requests.get(teleportID);
         if (request == null) {
             MessageHelper.send(target, "&cNo tienes ninguna solicitud.");
@@ -134,29 +148,21 @@ public class TeleportManager {
         requests.remove(teleportID);
     }
 
-    public void acceptRequest(Player target) {
-        String requestID = getLatestTeleportRequest(target);
-
-        if (requestID.isEmpty()) {
-            return;
-        }
-
-        Integer activeTaskID = activeTasks.remove(requestID);
-        if (activeTaskID != null) {
-            SchedulerHelper.cancelTask(activeTaskID);
-            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
-        }
-
-        TeleportRequest request = requests.get(requestID);
-        Player origin = Bukkit.getPlayer(request.from());
-        MessageHelper.send(origin, "&aAceptaron tu solicitud.");
-        MessageHelper.send(target, "&aAceptaste la solicitud.");
-
-        teleport(requestID);
-        requests.remove(requestID);
+    public void cancelRequest(Player sender, String requestUUID) {
+        cancelTeleportRequest(sender, requestUUID);
     }
 
-    public void cancelRequest(Player sender, String requestUUID) {
+    public void cancelRequest(Player sender) {
+        String requestUUID = getLatestTeleportRequest(sender);
+
+        if (requestUUID.isEmpty()) {
+            requestUUID = getLatestTeleportRequestFrom(sender);
+        }
+
+        cancelTeleportRequest(sender, requestUUID);
+    }
+
+    private void cancelTeleportRequest(Player sender, String requestUUID) {
         TeleportRequest request = requests.get(requestUUID);
 
         if (request == null) {
@@ -175,41 +181,6 @@ public class TeleportManager {
             MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
 
-
-        if (origin == sender) {
-            // The sender (origin) is cancelling the TP, send the appropiate message.
-            MessageHelper.send(sender, "&cCancelaste la solicitud que enviaste.");
-            MessageHelper.send(target, "&6" + sender.getName() + "&c canceló el viaje.");
-        } else {
-            MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
-            MessageHelper.send(origin, "&6" + sender.getName() + "&c canceló el viaje.");
-        }
-    }
-
-    public void cancelRequest(Player sender) {
-        String requestUUID = getLatestTeleportRequest(sender);
-
-        if (requestUUID.isEmpty()) {
-            requestUUID = getLatestTeleportRequestFrom(sender);
-            MessageHelper.console("RUID: " + requestUUID);
-        }
-
-        TeleportRequest request = requests.get(requestUUID);
-        if (request == null) {
-            MessageHelper.send(sender, "&cNo tienes ninguna solicitud para cancelar.");
-            return;
-        }
-
-        requests.remove(requestUUID);
-
-        Integer activeTaskID = activeTasks.remove(requestUUID);
-        if (activeTaskID != null) {
-            SchedulerHelper.cancelTask(activeTaskID);
-            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
-        }
-
-        Player origin = Bukkit.getPlayer(request.from());
-        Player target = Bukkit.getPlayer(request.to());
 
         if (origin == sender) {
             // The sender (origin) is cancelling the TP, send the appropiate message.
@@ -323,8 +294,6 @@ public class TeleportManager {
             return "";
         }
 
-        MessageHelper.console("FOUND");
-
         return latest.get().requestUUID();
     }
 
@@ -341,4 +310,3 @@ public class TeleportManager {
         return latest.get().requestUUID();
     }
 }
-
