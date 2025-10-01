@@ -137,7 +137,7 @@ public class TeleportManager {
         Integer activeTaskID = activeTasks.remove(teleportID);
         if (activeTaskID != null) {
             SchedulerHelper.cancelTask(activeTaskID);
-            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+            //MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
 
         Player origin = Bukkit.getPlayer(request.from());
@@ -178,7 +178,7 @@ public class TeleportManager {
         Integer activeTaskID = activeTasks.remove(requestUUID);
         if (activeTaskID != null) {
             SchedulerHelper.cancelTask(activeTaskID);
-            MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+            //MessageHelper.consoleDebug("Cancelled " + activeTaskID);
         }
 
 
