@@ -3,7 +3,15 @@ package dev.ezpadaz.vanillaPlus;
 import co.aikar.commands.PaperCommandManager;
 import dev.ezpadaz.vanillaPlus.Features.FeatureLoader;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 public final class VanillaPlus extends JavaPlugin {
     private static VanillaPlus instance;
@@ -15,7 +23,8 @@ public final class VanillaPlus extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        saveLangFile();
+        saveOrUpdateConfig();
         instance = this;
         commandManager = new PaperCommandManager(this);
         FeatureLoader.loadAll();
@@ -30,5 +39,37 @@ public final class VanillaPlus extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         FeatureLoader.shutdownAll();
+    }
+
+    private void saveLangFile() {
+        File langFile = new File(getDataFolder(), "lang.yml");
+        if (!langFile.exists()) {
+            saveResource("lang.yml", false); // false = don't overwrite existing file
+        }
+    }
+
+    public void saveOrUpdateConfig() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) {
+            saveResource("config.yml", false);
+            MessageHelper.console("&6Config: &aCreated default config.yml");
+            return;
+        }
+        try (var in = getResource("config.yml")) {
+            if (in == null) throw new IOException("Default config.yml missing in JAR");
+            var currentVersion = new BigDecimal(Optional.ofNullable(
+                    YamlConfiguration.loadConfiguration(configFile).getString("version")
+            ).orElseThrow());
+            var newVersion = new BigDecimal(Optional.ofNullable(
+                    YamlConfiguration.loadConfiguration(new InputStreamReader(in)).getString("version")
+            ).orElseThrow());
+            if (currentVersion.compareTo(newVersion) < 0) {
+                saveResource("config.yml", true);
+                MessageHelper.console("&6Config: &aUpdated config.yml to v" + newVersion);
+            }
+        } catch (Exception e) {
+            saveResource("config.yml", true);
+            MessageHelper.console("&6Config: &cVersion check failed, config.yml overwritten. (" + e.getMessage() + ")");
+        }
     }
 }

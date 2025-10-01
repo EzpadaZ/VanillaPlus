@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import dev.ezpadaz.vanillaPlus.Features.Backpack.Utils.BackpackManager;
 import dev.ezpadaz.vanillaPlus.Features.Homes.Manager.HomeManager;
+import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -27,8 +28,8 @@ public class AdminCommand extends BaseCommand {
         public void onHomeTpCommand(Player player, String[] args) {
             try {
                 HomeManager.adminTeleportToUserHome(player, args[0]);
-            }catch(Exception e) {
-                MessageHelper.send(player, "&cFallo el teleport.");
+            } catch (Exception e) {
+                MessageHelper.send(player, GeneralHelper.getLangString("features.admin.teleport-failure"));
             }
         }
     }
@@ -43,7 +44,7 @@ public class AdminCommand extends BaseCommand {
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target == null) {
-                MessageHelper.send(sender, "&cEl jugador es inaccesible.");
+                MessageHelper.send(sender, GeneralHelper.getLangString("features.admin.inventory-peek-player-offline"));
                 return;
             }
 
@@ -71,7 +72,7 @@ public class AdminCommand extends BaseCommand {
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target == null) {
-                MessageHelper.send(sender, "&cEl jugador debe estar en linea.");
+                MessageHelper.send(sender, GeneralHelper.getLangString("features.admin.backpack-peek-player-offline"));
                 return;
             }
 

@@ -1,20 +1,24 @@
+version: 1.0
 features:
   admin:
-    enabled: true
+    enabled: true # enables some admin commands.
   backpack:
-    enabled: true
+    enabled: true # enables backpack system
   homes:
     enabled: true
     max-homes: 3
-    delay: 3
+    delay: 3 # delay before TPing to a home.
   graveyard:
-    enabled: true
-    instant-respawn: true
+    enabled: true # enables grave system
+    instant-respawn: true # instant respawns the player. (skips death screen)
+    enable-grave-deletion: true # enables grave deletion.
+    delete-after-seconds: 43200 # deletes graves after 12 hours  (in seconds)
+    check-every-seconds: 3600  # check to delete graves every hour.
   double-xp:
     multiplier: 2
     enabled: true
   enhancements:
-    allow-any-books-in-bookshelf: true
+    allow-any-books-in-bookshelf: true # to save any book in bookshelf (fixes bookshelfs in enchanted plugins)
   teleport:
     threshold: 60
     delay: 2
@@ -22,7 +26,7 @@ features:
   watcher:
     enabled: true
     interval: 60
-    min-tps: 17.0
+    min-tps: 15.0
     warning-tps: 18.0
 integration:
   aura-skills: true

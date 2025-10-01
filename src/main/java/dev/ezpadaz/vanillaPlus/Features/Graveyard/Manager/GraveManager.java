@@ -38,7 +38,7 @@ public class GraveManager {
         Location graveLoc = findFirstAirAbove(deathLoc);
 
         if (graveLoc == null) {
-            MessageHelper.send(player, "&cNo se pudo encontrar un lugar adecuado para colocar la tumba, perdiste todo :(");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.no-suitable-grave-location-message"));
             return;
         }
 
@@ -51,9 +51,11 @@ public class GraveManager {
         skull.update(); // apply the skull change
 
         String worldName = graveLoc.getWorld().getName();
-        MessageHelper.send(player, "&7Tu tumba ha sido colocada en &e" +
-                graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ() +
-                " &7en el mundo &e" + worldName);
+
+        MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.placed-message")
+                .replace("%l", graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ())
+                .replace("%w", worldName)
+        );
 
         ItemStack[] armor = new ItemStack[]{
                 player.getInventory().getBoots(),
@@ -80,14 +82,14 @@ public class GraveManager {
         GraveData data = graveyard.get(location);
         if (data == null) return;
 
-        if(data.date() == null || data.date().isEmpty()) return;
+        if (data.date() == null || data.date().isEmpty()) return;
 
         try {
             SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date utcDate = isoFormat.parse(data.date());
 
-            SimpleDateFormat localFormat = new SimpleDateFormat("dd 'de' MMMM 'a las' HH:mm z");
+            SimpleDateFormat localFormat = new SimpleDateFormat(GeneralHelper.getLangString("features.graveyard.date-message-pattern"));
             localFormat.setTimeZone(TimeZone.getDefault());
 
             String localTime = localFormat.format(utcDate);
@@ -97,8 +99,10 @@ public class GraveManager {
             DecimalFormat formatter = new DecimalFormat("#,###");
             String formattedExp = formatter.format(exp);
 
-            MessageHelper.send(viewer, "&7Esta tumba le pertenece a &e" + playerName +
-                    "&7, contiene &e" + formattedExp + " XP&7, murió el &e" + localTime);
+            MessageHelper.send(viewer, GeneralHelper.getLangString("features.graveyard.grave-info-message")
+                    .replace("%p", playerName == null ? "UNKNOWN" : playerName)
+                    .replace("%x", formattedExp)
+                    .replace("%d", localTime));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -120,7 +124,7 @@ public class GraveManager {
             try (FileWriter writer = new FileWriter(dataFile)) {
                 gson.toJson(toSave, writer);
             }
-            MessageHelper.console("&6Graveyard Data: &a[SAVED]");
+            MessageHelper.console(GeneralHelper.getLangString("features.graveyard.console-save-success-message"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -128,7 +132,7 @@ public class GraveManager {
 
     public static void loadGravesFromFile() {
         if (!dataFile.exists()) {
-            MessageHelper.console("&6Graveyard Data: &c[EMPTY]");
+            MessageHelper.console(GeneralHelper.getLangString("features.graveyard.console-load-empty-message"));
             return;
         }
 
@@ -139,10 +143,47 @@ public class GraveManager {
             for (Map.Entry<String, GraveData> entry : loaded.entrySet()) {
                 graveyard.put(deserializeLocation(entry.getKey()), entry.getValue());
             }
-            MessageHelper.console("&6Graveyard Data: &a[OK]");
+            MessageHelper.console(GeneralHelper.getLangString("features.graveyard.console-load-success-message"));
         } catch (IOException e) {
             e.printStackTrace();
-            MessageHelper.console("&6Graveyard Data: &c[ERROR]");
+            MessageHelper.console(GeneralHelper.getLangString("features.graveyard.console-load-error-message"));
+        }
+    }
+
+    public static void startGraveyardDeletionTask() {
+        SchedulerHelper.scheduleRepeatingTask("GRAVEYARD_DELETION_TASK", () -> {
+            try {
+                checkAndDeleteGraveyards();
+            } catch (Exception e) {
+                MessageHelper.console("&6Graveyard Delete Task: &c[ERROR] " + e.getMessage());
+            }
+        }, 60, GeneralHelper.getConfigInt("features.graveyard.check-every-seconds"));
+    }
+
+    public static void stopGraveyardDeletionTask() {
+        SchedulerHelper.cancelTask("GRAVEYARD_DELETION_TASK");
+    }
+
+    private static void checkAndDeleteGraveyards() throws ParseException {
+        // Iterate over graveyard map, check date and compare if time exceeds.
+        int seconds = GeneralHelper.getConfigInt("features.graveyard.delete-after-seconds");
+
+        for (Map.Entry<Location, GraveData> entry : graveyard.entrySet()) {
+            GraveData data = entry.getValue();
+
+            // Check date
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            Date inputDate = format.parse(data.date());
+
+            long diffMillis = System.currentTimeMillis() - inputDate.getTime();
+            long diffSeconds = diffMillis / 1000;
+
+            if (diffSeconds >= seconds) {
+                // Delete grave.
+                Location graveLoc = entry.getKey();
+                graveLoc.getBlock().setType(Material.AIR);
+                removeGrave(graveLoc);
+            }
         }
     }
 
@@ -175,12 +216,12 @@ public class GraveManager {
     public static void restoreGrave(Player player, Location location) {
         GraveData data = graveyard.get(location);
         if (data == null) {
-            MessageHelper.send(player, "&cNo se encontró una tumba en esta ubicación.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.location-not-found"));
             return;
         }
 
         if (!data.playerId().equals(player.getUniqueId())) {
-            MessageHelper.send(player, "&cNo puedes reclamar una tumba que no te pertenece.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.location-wrong-owner-message"));
             return;
         }
 
@@ -215,10 +256,10 @@ public class GraveManager {
 
             // XP
             ExperienceHelper.addPlayerExp(player, data.totalExperience());
-            MessageHelper.send(player, "&aTu &cinventario&a y tu &cexperiencia&a han sido restaurados de tu tumba.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.claim-message"));
 
         } catch (IOException e) {
-            MessageHelper.send(player, "&cError al restaurar la tumba.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.claim-error-message"));
             e.printStackTrace();
             return;
         }

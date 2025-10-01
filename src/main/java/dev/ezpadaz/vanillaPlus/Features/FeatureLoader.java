@@ -10,6 +10,7 @@ import dev.ezpadaz.vanillaPlus.Features.Debug.Debug;
 import dev.ezpadaz.vanillaPlus.Features.DoubleXP.DoubleXP;
 import dev.ezpadaz.vanillaPlus.Features.Homes.Homes;
 import dev.ezpadaz.vanillaPlus.Features.Teleport.Teleport;
+import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Registry;
 
@@ -44,5 +45,6 @@ public class FeatureLoader {
         Homes.shutDown();
         Arbiter.shutDown();
         Backpack.shutDown();
+        SchedulerHelper.cancelAll();
     }
 }

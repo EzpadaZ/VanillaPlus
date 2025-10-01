@@ -27,10 +27,6 @@ public class TeleportUtils {
             return false; // Not enough space
         }
 
-        if (atFeet.isAir() && below.isAir()) {
-            return false;
-        }
-
-        return true;
+        return !atFeet.isAir() || !below.isAir();
     }
 }

@@ -5,11 +5,13 @@ import com.google.common.collect.ImmutableList;
 import de.slikey.effectlib.util.RandomUtils;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.*;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -211,8 +213,16 @@ public class GeneralHelper {
         return VanillaPlus.getInstance().getConfig().getInt(path);
     }
 
+
+    public static String getLangString(String path) {
+        File file = new File(VanillaPlus.getInstance().getDataFolder(), "lang.yml");
+        YamlConfiguration langConfig = YamlConfiguration.loadConfiguration(file);
+        return langConfig.getString(path);
+    }
+
     public static boolean isPluginPresent(String name) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
         return (plugin != null && plugin.isEnabled());
     }
+
 }

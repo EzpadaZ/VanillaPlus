@@ -51,7 +51,7 @@ public class MessageHelper {
 
     private static String buildMultiLineMessage(String titleText, String tagText, List<String> lines) {
         String tag = formatTag(tagText);
-        String title = (titleText == null || titleText.isEmpty()) ? "Informacion" : titleText;
+        String title = (titleText == null || titleText.isEmpty()) ? "INFO" : titleText;
 
         StringBuilder built = new StringBuilder(title + "\n" + separator + "\n");
         for (String line : lines) {
