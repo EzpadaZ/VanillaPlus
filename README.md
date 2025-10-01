@@ -1,33 +1,75 @@
 # VanillaPlus
 
-### This is a Minecraft Paper Plugin for > 1.21.5
+A **Minecraft Paper plugin** for **1.21.9+** that extends the vanilla experience with **lightweight, modular features**.  
+Inspired by my old `VanillaEnhancer` plugin — which had to walk so `VanillaPlus` could run 🏃.
 
-This plugin is based on my old `VanillaEnhancer` plugin made for an old server, the old plugin served as a testbed for this one.
-You could say `VanillaEnhancer` had to walk so `VanillaPlus` could run.
+---
 
-The reasons for resuming development in a new branch are a few but the most important ones are these:
+## ✨ Why VanillaPlus?
 
-- The old codebase had an unmantainable architecture
-- The old codebase had almost everything tied to everything else, adding a different database for example would be a gigantic effort that i had no time to develop for.
-- Configuration parameters were tied to mongo, no mongo == no plugin.
+I restarted development from scratch after archiving `VanillaEnhancer` because the old codebase was:
+- ❌ Unmaintainable and tightly coupled.
+- ❌ Hard to extend (e.g., adding another database was a nightmare).
+- ❌ Dependent on MongoDB — no Mongo meant no plugin.
 
-Those were the main reasons i decided to archive the old repo and start this one, wich my only purpose with this is to have:
+With VanillaPlus, my goals are:
+- ✅ Modular features (easy to enable/disable).
+- ✅ Configuration-driven (no DB lock-in).
+- ✅ Proper dependency checks and cleaner architecture.
 
-- Feature Modularization
-- Configuration within the plugin, not database dependant.
-- Correct dependency checks instead of doing some vomit-inducing checks like last time.
+---
 
-# Features
+## 📦 Features
 
-- DoubleXP Event with AuraSkills Integration (Done)
-- Travel Commands (Could be improved with language agnostic stuff)
-- Some GameplayEnhancements.
-- ~~ReviveMe Integration (Done)~~ Replaced by Graveyard System
-- ~~Better Database Integration (SQLite, Mongo and or POST to APIs with events)~~
-  - This was scrapped as i dont see it as a vital feature for the plugin to have and the ROI i get from it is _low_
-- ~~Death Chest~~ **Graveyard System** [**DONE**]
-- ~~Backpack System~~ Mojang Added Bags to the game, having a backpack is too overkill.
-- Admin system to check inventories (usefull when running an SMP and having theft, to check players0) and other silly stuff i can think of.
+VanillaPlus adds server-friendly, SMP-oriented improvements while staying close to vanilla gameplay:
 
-I am still thinking of stuff to add to the plugin to manage my own server, i'll probably do a lang.yml file since right now the language is spanish (due to the server being in spanish).
-So that's on the list of stuff to do.
+- ⚰️ **Graveyard System** – Player deaths spawn a grave (head + inventory).
+- 🎒 **Backpack System** – Store items in personal backpacks.
+- 🏠 **Homes & Teleports** – Save locations, teleport to friends, or bring them to you.
+- ✨ **Double XP / 2XP Boost** – Command to increase XP gain (with AureliumSkills integration).
+- 🛠️ **Gameplay Enhancements** – Small quality-of-life tweaks and plugin compatibility fixes.
+- 👁️ **Admin Tools** – Check player inventories (useful for SMP moderation).
+- ⏱️ **Arbiter System** – Monitors server performance and safely restarts when needed (works with auto-boot setup).
+- 🌐 **Language Support** – Includes a `lang.yml` file for translations (default: Spanish).
+
+---
+
+## 🗺️ Roadmap
+
+- More modular event systems.
+- Expanded `lang.yml` for multiple language support.
+- Additional gameplay tweaks depending on server needs.
+
+This plugin is primarily developed for **my own SMP server**, but it’s flexible enough for others who want a **vanilla-plus** experience.
+
+---
+
+## 🧩 Compatibility
+
+- Built against **Paper 1.21.9** (latest release).
+- Integrates with **AureliumSkills**.
+- Designed to coexist with other lightweight vanilla-friendly plugins.
+
+---
+
+## 📖 Installation
+
+1. Download the latest release `.jar`.
+2. Drop it into your server’s `/plugins` folder.
+3. Restart the server.
+4. Configure options inside the generated `config.yml` and `lang.yml`.
+
+---
+
+## 🙋 Notes
+
+- This project is personal and features will be added as I find new ideas useful for my own server.
+- Aim: keep it **as vanilla as possible**, only enhancing what feels natural to Minecraft.
+
+---
+
+## 📜 License
+
+MIT — free to use, modify, and adapt.
+
+---
