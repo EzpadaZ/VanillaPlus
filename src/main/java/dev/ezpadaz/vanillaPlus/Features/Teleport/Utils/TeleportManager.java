@@ -130,7 +130,7 @@ public class TeleportManager {
     private void acceptTeleportRequest(Player target, String teleportID) {
         TeleportRequest request = requests.get(teleportID);
         if (request == null) {
-            MessageHelper.send(target, "&cNo tienes ninguna solicitud.");
+            MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-accept-no-request"));
             return;
         }
 
@@ -141,8 +141,8 @@ public class TeleportManager {
         }
 
         Player origin = Bukkit.getPlayer(request.from());
-        MessageHelper.send(origin, "&aAceptaron tu solicitud.");
-        MessageHelper.send(target, "&aAceptaste la solicitud.");
+        MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-accept-origin-message"));
+        MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-accept-target-message"));
 
         teleport(teleportID);
         requests.remove(teleportID);
@@ -166,7 +166,7 @@ public class TeleportManager {
         TeleportRequest request = requests.get(requestUUID);
 
         if (request == null) {
-            MessageHelper.send(sender, "&cNo tienes ninguna solicitud.");
+            MessageHelper.send(sender, GeneralHelper.getLangString("features.teleport.tp-cancel-no-request"));
             return;
         }
 
@@ -184,11 +184,11 @@ public class TeleportManager {
 
         if (origin == sender) {
             // The sender (origin) is cancelling the TP, send the appropiate message.
-            MessageHelper.send(sender, "&cCancelaste la solicitud que enviaste.");
-            MessageHelper.send(target, "&6" + sender.getName() + "&c canceló el viaje.");
+            MessageHelper.send(sender, GeneralHelper.getLangString("features.teleport.tp-cancel-origin-message"));
+            MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-cancel-origin-target-message").replace("%p", sender.getName()));
         } else {
-            MessageHelper.send(sender, "&cMandaste a chingar a su madre a " + Bukkit.getOfflinePlayer(request.from()).getName() + ".");
-            MessageHelper.send(origin, "&6" + sender.getName() + "&c canceló el viaje.");
+            MessageHelper.send(sender, GeneralHelper.getLangString("features.teleport.tp-cancel-target-message"));
+            MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-cancel-target-origin-message").replace("%p", sender.getName()));
         }
     }
 
@@ -196,11 +196,11 @@ public class TeleportManager {
         Location location = backLocations.get(player.getUniqueId());
 
         if (location == null) {
-            MessageHelper.send(player, "&cNo tienes a donde volver.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.teleport.tp-back-no-location"));
             return;
         }
 
-        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY, "&6Has vuelto a tu ubicacion anterior.");
+        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY, GeneralHelper.getLangString("features.teleport.tp-back-message"));
         backLocations.remove(player.getUniqueId());
     }
 
@@ -216,14 +216,14 @@ public class TeleportManager {
 
         if (origin == null) {
             if (target != null) {
-                MessageHelper.send(target, "&cEl jugador " + Bukkit.getOfflinePlayer(request.from()).getName() + " está offline.");
+                MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-request-target-offline").replace("%p", origin.getName()));
             }
             return;
         }
 
         // This cant happen because the target accepted the TP, we still handle it just in case.
         if (target == null) {
-            MessageHelper.send(origin, "&cEl jugador " + Bukkit.getOfflinePlayer(request.to()).getName() + " está offline.");
+            MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-request-target-offline").replace("%p", target.getName()));
             return;
         }
 
@@ -235,10 +235,10 @@ public class TeleportManager {
         requests.remove(requestUUID);
 
         Location targetLocation = request.bring() ? origin.getLocation() : target.getLocation();
+        String unsafePlayerName = (request.bring() ? origin.getName() : target.getName());
 
         if (!TeleportUtils.isSafe(targetLocation)) {
-            String unsafeMsg = "&aLa ubicacion de " + (request.bring() ? origin.getName() : target.getName()) +
-                    " &cno es segura &aen este momento, he cancelado el tp.";
+            String unsafeMsg = GeneralHelper.getLangString("features.teleport.tp-request-unsafe-location").replace("%p", unsafePlayerName);
             MessageHelper.send(origin, unsafeMsg);
             MessageHelper.send(target, unsafeMsg);
             return;
@@ -262,14 +262,14 @@ public class TeleportManager {
         backLocations.put(player.getUniqueId(), player.getLocation());
 
         // Send clickable message
-        Component message = Component.text("Puedes regresar a tu ubicacion dando click ")
+        Component message = Component.text(GeneralHelper.getLangString("features.teleport.tp-on-back-available-message"))
                 .color(NamedTextColor.GRAY)
-                .append(Component.text("[Aqui]")
+                .append(Component.text(GeneralHelper.getLangString("features.teleport.tp-on-back-available-action"))
                         .color(NamedTextColor.GREEN)
                         .decorate(TextDecoration.BOLD)
                         .clickEvent(ClickEvent.runCommand("/tp back"))
-                        .hoverEvent(HoverEvent.showText(Component.text("Volver a la ubicación anterior"))))
-                .append(Component.text(" o escribiendo /tp back").color(NamedTextColor.GRAY));
+                        .hoverEvent(HoverEvent.showText(Component.text(GeneralHelper.getLangString("features.teleport.tp-on-back-available-action-description")))))
+                .append(Component.text(GeneralHelper.getLangString("features.teleport.tp-on-back-available-action-description-alt")).color(NamedTextColor.GRAY));
 
         player.sendMessage(message);
 
@@ -278,7 +278,7 @@ public class TeleportManager {
             Location tempLocation = backLocations.remove(player.getUniqueId());
 
             if(tempLocation != null) {
-                MessageHelper.send(player, "&aTu ubicacion para regresar ha &ccaducado.");
+                MessageHelper.send(player, GeneralHelper.getLangString("features.teleport.tp-back-expired"));
             }
         }, 300);
     }
@@ -290,7 +290,7 @@ public class TeleportManager {
                 .max(Comparator.comparing(TeleportRequest::cdate));
 
         if (latest.isEmpty()) {
-            MessageHelper.send(player, "&cNo has enviado solicitudes pendientes.");
+            MessageHelper.send(player, GeneralHelper.getLangString("features.teleport.tp-get-latest-tp-request"));
             return "";
         }
 

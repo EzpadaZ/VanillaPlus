@@ -32,6 +32,7 @@ features:
     tp-on-back-available-action-description: "Volver a la ubicación anterior"
     tp-on-back-available-action-description-alt: " o escribiendo /tp back"
     tp-back-expired: "&aTu ubicacion para regresar ha &ccaducado."
+    tp-get-latest-tp-request: "&cNo has enviado solicitudes pendientes."
   homes:
     save-success: "&6Datos de hogares: &a[GUARDADOS]"
     load-empty: "&6Datos de hogares: &c[VACÍO]"
