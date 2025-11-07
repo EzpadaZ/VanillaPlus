@@ -29,12 +29,10 @@ jobs:
       - name: Locate shaded JAR
         id: jar
         run: |
-          FILE=$(ls -1 build/libs/*-all.jar 2>/dev/null || ls -1 build/libs/*-shadow.jar)
-          if [ -z "$FILE" ]; then
-            echo "No shaded jar found in build/libs"; exit 1
-          fi
+          set -e
+          FILE=$(ls -1 server/plugins/VanillaPlus-*.jar | head -n1)
+          [ -n "$FILE" ] || { echo "No VanillaPlus jar in server/plugins"; exit 1; }
           echo "file=$FILE" >> "$GITHUB_OUTPUT"
-          echo "Found: $FILE"
 
       - name: Upload artifact (for logs/debug)
         uses: actions/upload-artifact@v4
