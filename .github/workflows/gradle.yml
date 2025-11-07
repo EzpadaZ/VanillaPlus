@@ -62,13 +62,14 @@ jobs:
           files: dist/*.jar
 
       # --- Main release (on branch main) ---
-      - name: Read version from gradle.properties
+      - name: Derive version from JAR name
         if: github.ref == 'refs/heads/main'
         id: ver
         run: |
-          ver=$(grep -E '^version\s*=' gradle.properties | head -n1 | cut -d= -f2 | tr -d '[:space:]')
-          if [ -z "$ver" ]; then echo "version not found in gradle.properties"; exit 1; fi
-          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          f="${{ steps.jar.outputs.file }}"                # e.g. server/plugins/VanillaPlus-1.1.0+20251107xxxx.jar
+          b="$(basename "$f" .jar)"
+          v="${b#VanillaPlus-}"                            # -> 1.1.0+20251107xxxx
+          echo "version=$v" >> "$GITHUB_OUTPUT"
 
       - name: Create/Update Release
         if: github.ref == 'refs/heads/main'
