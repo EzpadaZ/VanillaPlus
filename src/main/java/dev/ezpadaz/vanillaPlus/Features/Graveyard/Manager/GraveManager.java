@@ -173,7 +173,7 @@ public class GraveManager {
     private static void checkAndDeleteGraveyards() throws ParseException {
         // Iterate over graveyard map, check date and compare if time exceeds.
         int seconds = GeneralHelper.getConfigInt("features.graveyard.delete-after-seconds");
-        MessageHelper.consoleDebug("Checking for expired graves.");
+        //MessageHelper.consoleDebug("Checking for expired graves.");
 
         for (Map.Entry<Location, GraveData> entry : graveyard.entrySet()) {
             GraveData data = entry.getValue();
