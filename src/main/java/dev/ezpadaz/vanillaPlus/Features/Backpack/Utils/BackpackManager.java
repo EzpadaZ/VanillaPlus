@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import dev.ezpadaz.vanillaPlus.Features.Backpack.Model.BackpackModel;
+import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.InventoryHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
@@ -78,7 +79,7 @@ public class BackpackManager {
         try (FileWriter writer = new FileWriter(file)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(serialized, writer);
-            MessageHelper.console("&6Backpack Data: &a[SAVED]");
+            MessageHelper.console(GeneralHelper.getLangString("features.backpack.save-success"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,7 +89,7 @@ public class BackpackManager {
         File file = new File(VanillaPlus.getInstance().getDataFolder(), "data/backpack/save.json");
 
         if (!file.exists()) {
-            MessageHelper.console("&6Backpack Data: &c[EMPTY]");
+            MessageHelper.console(GeneralHelper.getLangString("features.backpack.load-empty"));
             return;
         }
 
@@ -104,10 +105,10 @@ public class BackpackManager {
                     inventories.put(UUID.fromString(entry.getKey()), InventoryHelper.fromBase64(entry.getValue()));
                 }
             }
-            MessageHelper.console("&6Backpack Data: &a[OK]");
+            MessageHelper.console(GeneralHelper.getLangString("features.backpack.load-success"));
         } catch (IOException | JsonParseException e) {
             e.printStackTrace();
-            MessageHelper.console("&6Backpack Data: &c[ERROR]");
+            MessageHelper.console(GeneralHelper.getLangString("features.backpack.load-error"));
         }
     }
 }

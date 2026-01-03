@@ -1,4 +1,4 @@
-version: 1.2
+version: 1.3
 features:
   teleport:
     tp-self: "&cNo te puedes enviar solicitudes a ti mismo."
@@ -63,6 +63,11 @@ features:
     claim-error-message: "&cError al restaurar la tumba."
     no-suitable-grave-location-message: "&cNo se pudo encontrar un lugar adecuado para colocar la tumba. Perdiste todo :("
     placed-message: "&7Tu tumba ha sido colocada en &e%l &7en el mundo &e%w"
+  backpack:
+    load-empty: "&6Datos de Mochila: &c[VACÍO]"
+    load-success: "&6Datos de Mochila: &a[OK]"
+    load-error: "&6Datos de Mochila: &c[ERROR]"
+    save-success: "&6Datos de Mochila: &a[GUARDADO]"
   admin:
     teleport-failure: "&cEl teletransporte ha fallado."
     inventory-peek-player-offline: "&cEl jugador está inaccesible."
