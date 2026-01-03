@@ -1,4 +1,4 @@
-version: 1.0
+version: 1.1
 features:
   admin:
     enabled: true # enables some admin commands.
@@ -12,7 +12,7 @@ features:
     enabled: true # enables grave system
     instant-respawn: true # instant respawns the player. (skips death screen)
     enable-grave-deletion: true # enables grave deletion.
-    delete-after-seconds: 43200 # deletes graves after 12 hours  (in seconds)
+    delete-after-seconds: 3600 # deletes graves after 12 hours  (in seconds)
     check-every-seconds: 3600  # check to delete graves every hour.
   double-xp:
     multiplier: 2
