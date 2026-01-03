@@ -56,7 +56,7 @@ public class GraveyardListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block clicked = event.getClickedBlock();
-        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD) return;
+        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD && clicked.getType() != Material.SKELETON_SKULL) return;
 
         if (!GraveManager.isGrave(clicked.getLocation())) return;
 
@@ -77,7 +77,7 @@ public class GraveyardListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-        if (block.getType() == Material.PLAYER_HEAD) {
+        if (block.getType() == Material.PLAYER_HEAD ||  block.getType() == Material.SKELETON_SKULL) {
             if (GraveManager.isGrave(block.getLocation())) {
                 event.setCancelled(true);
                 GraveManager.restoreGrave(event.getPlayer(), block.getLocation());

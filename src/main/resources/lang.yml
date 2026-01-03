@@ -1,4 +1,4 @@
-version: 1.0
+version: 1.2
 features:
   teleport:
     tp-self: "&cNo te puedes enviar solicitudes a ti mismo."
@@ -54,7 +54,9 @@ features:
     console-load-success-message: "&6Datos de tumbas: &a[CARGADOS]"
     console-load-error-message: "&6Datos de tumbas: &c[ERROR]"
     date-message-pattern: "dd 'de' MMMM 'a las' HH:mm z"
-    grave-info-message: "&7Esta tumba le pertenece a &e%p&7, contiene &e%x XP&7, murió el &e%d"
+    grave-info-message: "&7Esta tumba le pertenece a &e%p&7, contiene &e%x XP&7, murió el &e%d, &7se encuentra %s"
+    grave-info-locked-message: "&cbloqueada"
+    grave-info-unlocked-message: "&adesbloqueada"
     location-not-found: "&cNo se encontró una tumba en esta ubicación."
     location-wrong-owner-message: "&cNo puedes reclamar una tumba que no te pertenece."
     claim-message: "&aTu &cinventario&a y tu &cexperiencia&a han sido restaurados desde tu tumba."
