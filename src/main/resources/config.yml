@@ -1,4 +1,4 @@
-version: 1.1
+version: 1.2
 features:
   admin:
     enabled: true # enables some admin commands.
@@ -10,6 +10,7 @@ features:
     delay: 3 # delay before TPing to a home.
   graveyard:
     enabled: true # enables grave system
+    max-graves-per-player: 5
     instant-respawn: true # instant respawns the player. (skips death screen)
     enable-grave-deletion: true # enables grave deletion.
     delete-after-seconds: 3600 # deletes graves after 12 hours  (in seconds)

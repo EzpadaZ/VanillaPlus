@@ -205,6 +205,13 @@ public class GraveManager {
                         false // isLocked
                 );
 
+                Player player = Bukkit.getPlayer(data.playerId());
+
+                if (player != null) {
+                    MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.expired-message").replace("%l", graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ())
+                            .replace("%w", graveLoc.getWorld().getName()));
+                }
+
                 World w = graveLoc.getWorld();
                 int cx = graveLoc.getBlockX() >> 4;
                 int cz = graveLoc.getBlockZ() >> 4;

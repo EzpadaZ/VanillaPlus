@@ -1,4 +1,4 @@
-version: 1.3
+version: 1.4
 features:
   teleport:
     tp-self: "&cNo te puedes enviar solicitudes a ti mismo."
@@ -58,11 +58,12 @@ features:
     grave-info-locked-message: "&cbloqueada"
     grave-info-unlocked-message: "&adesbloqueada"
     location-not-found: "&cNo se encontró una tumba en esta ubicación."
-    location-wrong-owner-message: "&cNo puedes reclamar una tumba que no te pertenece."
-    claim-message: "&aTu &cinventario&a y tu &cexperiencia&a han sido restaurados desde tu tumba."
+    location-wrong-owner-message: "&cNo puedes reclamar una tumba que no bloqueada."
+    claim-message: "&aReclamaste el &cinventario&a y la &cexperiencia&a de esta tumba."
     claim-error-message: "&cError al restaurar la tumba."
     no-suitable-grave-location-message: "&cNo se pudo encontrar un lugar adecuado para colocar la tumba. Perdiste todo :("
     placed-message: "&7Tu tumba ha sido colocada en &e%l &7en el mundo &e%w"
+    expired-message: "&7Tu tumba ubicada en &e%l &7en el mundo &e%w &7ha expirado, &ccualquiera puede tomarla."
   backpack:
     load-empty: "&6Datos de Mochila: &c[VACÍO]"
     load-success: "&6Datos de Mochila: &a[OK]"
