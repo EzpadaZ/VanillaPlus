@@ -23,9 +23,9 @@ public final class VanillaPlus extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        saveLangFile();
-        saveOrUpdateConfig();
         instance = this;
+        saveOrUpdateLang();
+        saveOrUpdateConfig();
         commandManager = new PaperCommandManager(this);
         FeatureLoader.loadAll();
 
@@ -41,12 +41,35 @@ public final class VanillaPlus extends JavaPlugin {
         FeatureLoader.shutdownAll();
     }
 
-    private void saveLangFile() {
+    public void saveOrUpdateLang() {
         File langFile = new File(getDataFolder(), "lang.yml");
         if (!langFile.exists()) {
-            saveResource("lang.yml", false); // false = don't overwrite existing file
+            saveResource("lang.yml", false);
+            MessageHelper.console("&6Lang: &aCreated default lang.yml");
+            return;
+        }
+
+        try (var in = getResource("lang.yml")) {
+            if (in == null) throw new IOException("Default lang.yml missing in JAR");
+
+            var currentVersion = new BigDecimal(Optional.ofNullable(
+                    YamlConfiguration.loadConfiguration(langFile).getString("version")
+            ).orElseThrow());
+
+            var newVersion = new BigDecimal(Optional.ofNullable(
+                    YamlConfiguration.loadConfiguration(new InputStreamReader(in)).getString("version")
+            ).orElseThrow());
+
+            if (currentVersion.compareTo(newVersion) < 0) {
+                saveResource("lang.yml", true);
+                MessageHelper.console("&6Lang: &aUpdated lang.yml to v" + newVersion);
+            }
+        } catch (Exception e) {
+            saveResource("lang.yml", true);
+            MessageHelper.console("&6Lang: &cVersion check failed, lang.yml overwritten. (" + e.getMessage() + ")");
         }
     }
+
 
     public void saveOrUpdateConfig() {
         File configFile = new File(getDataFolder(), "config.yml");

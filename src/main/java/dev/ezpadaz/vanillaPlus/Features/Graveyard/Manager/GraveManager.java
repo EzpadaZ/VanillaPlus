@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import dev.ezpadaz.vanillaPlus.Features.Graveyard.Model.GraveData;
 import dev.ezpadaz.vanillaPlus.Utils.*;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,9 +46,11 @@ public class GraveManager {
         EffectHelper.getInstance().strikeLightning(player);
         EffectHelper.getInstance().smokeExplosionEffect(player);
 
+        ResolvableProfile profile = ResolvableProfile.resolvableProfile(player.getPlayerProfile());
+
         graveLoc.getBlock().setType(Material.PLAYER_HEAD);
         Skull skull = (Skull) graveLoc.getBlock().getState();
-        skull.setOwningPlayer(player);
+        skull.setProfile(profile);
         skull.update(); // apply the skull change
 
         String worldName = graveLoc.getWorld().getName();
@@ -74,7 +77,8 @@ public class GraveManager {
                 armorString,
                 offhand,
                 ExperienceHelper.getPlayerExp(player),
-                GeneralHelper.toISOString(GeneralHelper.getISODate())
+                GeneralHelper.toISOString(GeneralHelper.getISODate()),
+                true
         ));
     }
 
@@ -102,7 +106,9 @@ public class GraveManager {
             MessageHelper.send(viewer, GeneralHelper.getLangString("features.graveyard.grave-info-message")
                     .replace("%p", playerName == null ? "UNKNOWN" : playerName)
                     .replace("%x", formattedExp)
-                    .replace("%d", localTime));
+                    .replace("%d", localTime)
+                    .replace("%s", data.isLocked() ? GeneralHelper.getLangString("features.graveyard.grave-info-locked-message") : GeneralHelper.getLangString("features.graveyard.grave-info-unlocked-message"))
+            );
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -116,7 +122,7 @@ public class GraveManager {
 
     public static void saveGravesToFile() {
         try {
-            dataFile.getParentFile().mkdirs();
+            boolean fileCreated = dataFile.getParentFile().mkdirs();
             Map<String, GraveData> toSave = new HashMap<>();
             for (Map.Entry<Location, GraveData> entry : graveyard.entrySet()) {
                 toSave.put(serializeLocation(entry.getKey()), entry.getValue());
@@ -167,9 +173,16 @@ public class GraveManager {
     private static void checkAndDeleteGraveyards() throws ParseException {
         // Iterate over graveyard map, check date and compare if time exceeds.
         int seconds = GeneralHelper.getConfigInt("features.graveyard.delete-after-seconds");
+        //MessageHelper.consoleDebug("Checking for expired graves.");
 
         for (Map.Entry<Location, GraveData> entry : graveyard.entrySet()) {
             GraveData data = entry.getValue();
+
+            // check if already unlocked.
+            boolean locked = data.isLocked() == null || data.isLocked();
+            if (!locked) {
+                continue;
+            }
 
             // Check date
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
@@ -179,10 +192,35 @@ public class GraveManager {
             long diffSeconds = diffMillis / 1000;
 
             if (diffSeconds >= seconds) {
-                // Delete grave.
+                // mark unlocked for anyone to claim
+                // replace skin with skull.
                 Location graveLoc = entry.getKey();
-                graveLoc.getBlock().setType(Material.AIR);
-                removeGrave(graveLoc);
+                GraveData unlocked = new GraveData(
+                        data.playerId(),
+                        data.contents(),
+                        data.armor(),
+                        data.offhand(),
+                        data.totalExperience(),
+                        data.date(),
+                        false // isLocked
+                );
+
+                Player player = Bukkit.getPlayer(data.playerId());
+
+                if (player != null) {
+                    MessageHelper.send(player, GeneralHelper.getLangString("features.graveyard.expired-message").replace("%l", graveLoc.getBlockX() + ", " + graveLoc.getBlockY() + ", " + graveLoc.getBlockZ())
+                            .replace("%w", graveLoc.getWorld().getName()));
+                }
+
+                World w = graveLoc.getWorld();
+                int cx = graveLoc.getBlockX() >> 4;
+                int cz = graveLoc.getBlockZ() >> 4;
+
+                entry.setValue(unlocked); // save as unlocked grave.
+                if (w != null && w.isChunkLoaded(cx, cz)) {
+                    graveLoc.getBlock().setType(Material.SKELETON_SKULL);
+                    EffectHelper.getInstance().strikeLightning(graveLoc);
+                }
             }
         }
     }
@@ -226,32 +264,52 @@ public class GraveManager {
         }
 
         try {
-            // Main contents
-            ItemStack[] contents = InventoryHelper.itemStackArrayFromBase64(data.contents());
-            for (ItemStack item : contents) {
-                if (item == null) continue;
-                HashMap<Integer, ItemStack> excess = player.getInventory().addItem(item);
-                for (ItemStack leftover : excess.values()) {
-                    player.getWorld().dropItemNaturally(player.getLocation(), leftover);
-                }
+//            // Main contents
+//            ItemStack[] contents = InventoryHelper.itemStackArrayFromBase64(data.contents());
+//            for (ItemStack item : contents) {
+//                if (item == null) continue;
+//                HashMap<Integer, ItemStack> excess = player.getInventory().addItem(item);
+//                for (ItemStack leftover : excess.values()) {
+//                    player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+//                }
+//            }
+//
+//            // Armor
+//            ItemStack[] armor = InventoryHelper.itemStackArrayFromBase64(data.armor());
+//            PlayerInventory inv = player.getInventory();
+//            if (armor.length > 0) dropOrEquip(player, armor[0], inv.getBoots(), inv::setBoots);
+//            if (armor.length > 1) dropOrEquip(player, armor[1], inv.getLeggings(), inv::setLeggings);
+//            if (armor.length > 2) dropOrEquip(player, armor[2], inv.getChestplate(), inv::setChestplate);
+//            if (armor.length > 3) dropOrEquip(player, armor[3], inv.getHelmet(), inv::setHelmet);
+//
+//            // Offhand
+//            ItemStack[] offhand = InventoryHelper.itemStackArrayFromBase64(data.offhand());
+//            if (offhand.length > 0) {
+//                ItemStack existing = player.getInventory().getItemInOffHand();
+//                if (existing.getType() != Material.AIR) {
+//                    player.getWorld().dropItemNaturally(player.getLocation(), existing);
+//                }
+//                player.getInventory().setItemInOffHand(offhand[0]);
+//            }
+
+            Location dropLoc = location.clone().add(0.5, 0.5, 0.5);
+
+            // Main
+            for (ItemStack item : InventoryHelper.itemStackArrayFromBase64(data.contents())) {
+                if (item == null || item.getType() == Material.AIR) continue;
+                player.getWorld().dropItemNaturally(dropLoc, item);
             }
 
             // Armor
-            ItemStack[] armor = InventoryHelper.itemStackArrayFromBase64(data.armor());
-            PlayerInventory inv = player.getInventory();
-            if (armor.length > 0) dropOrEquip(player, armor[0], inv.getBoots(), inv::setBoots);
-            if (armor.length > 1) dropOrEquip(player, armor[1], inv.getLeggings(), inv::setLeggings);
-            if (armor.length > 2) dropOrEquip(player, armor[2], inv.getChestplate(), inv::setChestplate);
-            if (armor.length > 3) dropOrEquip(player, armor[3], inv.getHelmet(), inv::setHelmet);
+            for (ItemStack item : InventoryHelper.itemStackArrayFromBase64(data.armor())) {
+                if (item == null || item.getType() == Material.AIR) continue;
+                player.getWorld().dropItemNaturally(dropLoc, item);
+            }
 
             // Offhand
             ItemStack[] offhand = InventoryHelper.itemStackArrayFromBase64(data.offhand());
-            if (offhand.length > 0) {
-                ItemStack existing = player.getInventory().getItemInOffHand();
-                if (existing.getType() != Material.AIR) {
-                    player.getWorld().dropItemNaturally(player.getLocation(), existing);
-                }
-                player.getInventory().setItemInOffHand(offhand[0]);
+            if (offhand.length > 0 && offhand[0] != null && offhand[0].getType() != Material.AIR) {
+                player.getWorld().dropItemNaturally(dropLoc, offhand[0]);
             }
 
             // XP
