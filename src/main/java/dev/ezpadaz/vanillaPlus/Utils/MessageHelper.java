@@ -28,6 +28,12 @@ public class MessageHelper {
         }
     }
 
+    public static Component getMessageComponent(String message) {
+        String translatedMessage = ChatColor.translateAlternateColorCodes('&', message);
+        Component component = Component.text(translatedMessage).color(NamedTextColor.WHITE);
+        return component;
+    }
+
     public static void sendConsole(String message) {
         String translatedMessage = ChatColor.translateAlternateColorCodes('&', PREFIX + message);
         VanillaPlus.getInstance().getServer().getConsoleSender().sendMessage(translatedMessage);

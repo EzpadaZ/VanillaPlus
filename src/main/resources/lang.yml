@@ -1,4 +1,4 @@
-version: 1.4
+version: 1.5
 features:
   teleport:
     tp-self: "&cNo te puedes enviar solicitudes a ti mismo."
@@ -69,6 +69,14 @@ features:
     load-success: "&6Datos de Mochila: &a[OK]"
     load-error: "&6Datos de Mochila: &c[ERROR]"
     save-success: "&6Datos de Mochila: &a[GUARDADO]"
+  xp-storage:
+    bottle-name: "&4&kARC &r&l&6 XP Bottle &r&4&kARC"
+    bottle-total: "&5Total: &6%total_xp% XP"
+    bottle-levels: "&5Levels: &6%total_levels%"
+    claimed-message: "&7Has reclamado &6%total_xp% XP &7con exito!"
+    cmd-not-enough-xp: "&cNo tienes suficiente experiencia para guardar."
+    cmd-store-success: "&7Se guardo la &5botella&7, contiene &6%total_xp% XP"
+    cmd-bottle-needed: "&cNecesitas una &2botella de vidrio&c vacia en la mano"
   admin:
     teleport-failure: "&cEl teletransporte ha fallado."
     inventory-peek-player-offline: "&cEl jugador está inaccesible."
