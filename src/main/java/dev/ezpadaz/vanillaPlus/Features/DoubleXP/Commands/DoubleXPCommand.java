@@ -6,6 +6,7 @@ import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import dev.ezpadaz.vanillaPlus.Features.DoubleXP.DoubleXP;
 import dev.ezpadaz.vanillaPlus.Utils.ExperienceHelper;
+import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -28,7 +29,16 @@ public class DoubleXPCommand extends BaseCommand {
             }
         } else {
             if (sender instanceof Player p) {
-                MessageHelper.send(p, "Este comando solo corre por consola.");
+                if (p.getName().equals(GeneralHelper.getConfigString("owner"))) {
+                    if (DoubleXP.isEventEnabled()) {
+                        MessageHelper.console("DoubleXP is already enabled.");
+                    } else {
+                        DoubleXP.setEventEnabled(true);
+                        MessageHelper.send(p, "&6DoubleXP &aenabled");
+                    }
+                } else {
+                    MessageHelper.send(p, "Este comando solo corre por consola.");
+                }
             }
         }
     }
@@ -43,7 +53,14 @@ public class DoubleXPCommand extends BaseCommand {
             }
         } else {
             if (sender instanceof Player p) {
-                MessageHelper.send(p, "Este comando solo corre por consola.");
+                if (p.getName().equals(GeneralHelper.getConfigString("owner"))) {
+                    if (DoubleXP.isEventEnabled()) {
+                        DoubleXP.setEventEnabled(false);
+                        MessageHelper.send(sender, "&6DoubleXP is &cdisabled.");
+                    }
+                } else {
+                    MessageHelper.send(p, "Este comando solo corre por consola.");
+                }
             }
         }
     }
@@ -61,10 +78,10 @@ public class DoubleXPCommand extends BaseCommand {
     @Description("Informa al jugador de cambios de xp")
     public void onOptinCommand(CommandSender sender) {
         if (sender instanceof Player p) {
-            if(DoubleXP.isPlayerOptedIn(p.getName())){
+            if (DoubleXP.isPlayerOptedIn(p.getName())) {
                 DoubleXP.optedPlayers.remove(p.getName());
                 MessageHelper.send(p, "Dejaras de recibir actualizaciones de XP");
-            }else{
+            } else {
                 DoubleXP.optedPlayers.add(p.getName());
                 MessageHelper.send(p, "Ahora recibiras actualizaciones de XP");
             }
