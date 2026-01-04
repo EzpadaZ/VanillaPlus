@@ -7,9 +7,8 @@ plugins {
 }
 
 group = 'dev.ezpadaz'
-version = '1.2.0'
 
-def baseVersion = '1.2.0'
+def baseVersion = '1.2.1'
 def timestamp = new Date().format("yyyyMMddHHmm")
 version = "${baseVersion}+${timestamp}"
 
@@ -63,7 +62,7 @@ compileJava {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly 'dev.aurelium:auraskills-api-bukkit:2.2.4'
+    compileOnly 'dev.aurelium:auraskills-api-bukkit:2.3.3'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'com.elmakers.mine.bukkit:EffectLib:10.2'
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
