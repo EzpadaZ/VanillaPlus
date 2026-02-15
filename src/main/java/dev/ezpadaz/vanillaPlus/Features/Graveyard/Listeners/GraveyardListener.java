@@ -27,9 +27,10 @@ public class GraveyardListener implements Listener {
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
+        World.Environment env = player.getWorld().getEnvironment();
 
         // Skip grave in the End
-        if (player.getWorld().getEnvironment() != World.Environment.THE_END) {
+        if (env != World.Environment.THE_END && env != World.Environment.NETHER) {
             // Prevent item and XP drops
             e.getDrops().clear();
             e.setDroppedExp(0);
@@ -69,8 +70,8 @@ public class GraveyardListener implements Listener {
         Player player = event.getPlayer();
         World.Environment environment = player.getWorld().getEnvironment();
 
-        if (environment == World.Environment.THE_END) {
-            MessageHelper.send(player, "&cLas tumbas no se generan en El End.");
+        if (environment == World.Environment.THE_END || environment == World.Environment.NETHER) {
+            MessageHelper.send(player, "&cLas tumbas no se generan en otras dimensiones.");
         }
     }
 
