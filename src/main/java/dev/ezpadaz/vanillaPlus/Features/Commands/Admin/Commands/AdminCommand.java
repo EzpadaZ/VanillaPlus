@@ -10,15 +10,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.Arrays;
 
 @CommandAlias("admin")
-@CommandPermission("vanillaplus.admin")
 public class AdminCommand extends BaseCommand {
 
     @Subcommand("homes")
@@ -27,6 +24,8 @@ public class AdminCommand extends BaseCommand {
         @CommandCompletion("@admin_player_homes")
         public void onHomeTpCommand(Player player, String[] args) {
             try {
+                if (!isOwner(player)) return;
+
                 HomeManager.adminTeleportToUserHome(player, args[0]);
             } catch (Exception e) {
                 MessageHelper.send(player, GeneralHelper.getLangString("features.admin.teleport-failure"));
@@ -41,6 +40,7 @@ public class AdminCommand extends BaseCommand {
         @Description("See the inventory of said player.")
         @CommandCompletion("@players")
         public void onInventorySeeCommand(Player sender, String[] args) {
+            if (!isOwner(sender)) return;
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target == null) {
@@ -69,6 +69,7 @@ public class AdminCommand extends BaseCommand {
         @Default
         @CommandCompletion("@players")
         public void onAdminBackpack(Player sender, String[] args) {
+            if (!isOwner(sender)) return;
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target == null) {
@@ -78,5 +79,10 @@ public class AdminCommand extends BaseCommand {
 
             BackpackManager.openBackpack(sender, target);
         }
+    }
+
+    public boolean isOwner(Player p) {
+        String ownerName = GeneralHelper.getConfigString("owner");
+        return p.getName().equalsIgnoreCase(ownerName);
     }
 }
