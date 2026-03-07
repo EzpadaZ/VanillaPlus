@@ -1,4 +1,4 @@
-version: 1.6
+version: 1.7
 features:
   teleport:
     tp-self: "&cNo te puedes enviar solicitudes a ti mismo."
@@ -41,7 +41,8 @@ features:
     admin-teleport-format-error: "&cFormato incorrecto. Usa: hogar/nombreUsuario"
     admin-teleport-success: "&aHas sido teletransportado al hogar '%h' de %p."
     admin-teleport-not-found: "&cNo se encontró un hogar llamado '%h' para %p."
-    add-home-update-success: "&aLa ubicación de tu hogar '%h' ha sido actualizada."    add-home-limit-error: "&cYa has alcanzado el máximo de hogares permitidos (%l)."
+    add-home-update-success: "&aLa ubicación de tu hogar '%h' ha sido actualizada."
+    add-home-limit-error: "&cYa has alcanzado el máximo de hogares permitidos (%l)."
     add-home-success: "&aTu hogar '%h' ha sido guardado."
     delete-home-error: "&cNo tienes hogares guardados."
     delete-home-success: "&aTu hogar '%h' ha sido eliminado."
@@ -81,3 +82,6 @@ features:
     inventory-peek-player-offline: "&cEl jugador está inaccesible."
     backpack-peek-player-offline: "&cEl jugador debe estar en línea."
     plugin-save-success: "&2Guardado con exito."
+    plugin-save-error: "&cNo se pudo guardar :( (Avisale a un admin)"
+    plugin-reload-all-success: "&2Guardado con exito."
+    plugin-reload-all-error: "&cNo se pudo recargar :("

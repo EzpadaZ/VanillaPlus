@@ -49,17 +49,34 @@ public class AdminCommand extends BaseCommand {
                 }
 
                 BackpackManager.saveInventoriesToFile();
-                GraveManager.saveGravesToFile();;
+                GraveManager.saveGravesToFile();
+                ;
                 HomeManager.saveHomesToFile();
 
                 // send message to global "save" successfull"'
                 MessageHelper.global(GeneralHelper.getLangString("features.admin.plugin-save-success"));
             } catch (Exception e) {
                 if (sender instanceof Player player) {
-                    MessageHelper.send(player, GeneralHelper.getLangString("features.admin.teleport-failure"));
+                    MessageHelper.send(player, GeneralHelper.getLangString("features.admin.plugin-save-error"));
                 } else {
                     sender.sendMessage("Save command failed.");
                 }
+            }
+        }
+    }
+
+    @Subcommand("reload")
+    public class ReloadSubCommand extends BaseCommand {
+        @Subcommand("all")
+        public void onRestoreInventoryCommand(Player p) {
+            try {
+                if (!isOwner(p)) return;
+                BackpackManager.loadInventoriesFromFile();
+                GraveManager.loadGravesFromFile();
+                HomeManager.loadHomesFromFile();
+                MessageHelper.send(p, GeneralHelper.getLangString("features.admin.plugin-reload-all-success"));
+            } catch (Exception e) {
+                MessageHelper.send(p, GeneralHelper.getLangString("features.admin.plugin-reload-all-error"));
             }
         }
     }
