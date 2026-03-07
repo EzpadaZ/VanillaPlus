@@ -1,4 +1,4 @@
-version: 1.5
+version: 1.6
 features:
   teleport:
     tp-self: "&cNo te puedes enviar solicitudes a ti mismo."
@@ -80,3 +80,4 @@ features:
     teleport-failure: "&cEl teletransporte ha fallado."
     inventory-peek-player-offline: "&cEl jugador está inaccesible."
     backpack-peek-player-offline: "&cEl jugador debe estar en línea."
+    plugin-save-success: "&2Guardado con exito."

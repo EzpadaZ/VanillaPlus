@@ -3,13 +3,17 @@ package dev.ezpadaz.vanillaPlus.Features.Commands.Admin.Commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import dev.ezpadaz.vanillaPlus.Features.Backpack.Utils.BackpackManager;
+import dev.ezpadaz.vanillaPlus.Features.Graveyard.Manager.GraveManager;
 import dev.ezpadaz.vanillaPlus.Features.Homes.Manager.HomeManager;
+import dev.ezpadaz.vanillaPlus.Features.Teleport.Utils.TeleportManager;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -29,6 +33,33 @@ public class AdminCommand extends BaseCommand {
                 HomeManager.adminTeleportToUserHome(player, args[0]);
             } catch (Exception e) {
                 MessageHelper.send(player, GeneralHelper.getLangString("features.admin.teleport-failure"));
+            }
+        }
+    }
+
+    @Subcommand("save")
+    public class SaveSubCommand extends BaseCommand {
+        @Subcommand("all")
+        public void onSaveAllCommand(CommandSender sender) {
+            try {
+                if (sender instanceof Player player) {
+                    if (!isOwner(player)) return;
+                } else if (!(sender instanceof ConsoleCommandSender)) {
+                    return;
+                }
+
+                BackpackManager.saveInventoriesToFile();
+                GraveManager.saveGravesToFile();;
+                HomeManager.saveHomesToFile();
+
+                // send message to global "save" successfull"'
+                MessageHelper.global(GeneralHelper.getLangString("features.admin.plugin-save-success"));
+            } catch (Exception e) {
+                if (sender instanceof Player player) {
+                    MessageHelper.send(player, GeneralHelper.getLangString("features.admin.teleport-failure"));
+                } else {
+                    sender.sendMessage("Save command failed.");
+                }
             }
         }
     }
