@@ -6,7 +6,6 @@ import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
 import dev.ezpadaz.vanillaPlus.Utils.SchedulerHelper;
 import dev.ezpadaz.vanillaPlus.VanillaPlus;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -27,9 +26,17 @@ public class GraveyardListener implements Listener {
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
+        World.Environment env = player.getWorld().getEnvironment();
+        boolean isNetherProtected = GeneralHelper.getConfigBool("features.graveyard.enable-nether");
+        boolean isEndProtected = GeneralHelper.getConfigBool("features.graveyard.enable-end");
 
-        // Skip grave in the End
-        if (player.getWorld().getEnvironment() != World.Environment.THE_END) {
+        boolean allowGrave =
+                env == World.Environment.NORMAL
+                        || (env == World.Environment.NETHER && isNetherProtected)
+                        || (env == World.Environment.THE_END && isEndProtected);
+
+        // Skip grave in the End & Nether
+        if (allowGrave) {
             // Prevent item and XP drops
             e.getDrops().clear();
             e.setDroppedExp(0);
@@ -56,7 +63,8 @@ public class GraveyardListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block clicked = event.getClickedBlock();
-        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD && clicked.getType() != Material.SKELETON_SKULL) return;
+        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD && clicked.getType() != Material.SKELETON_SKULL)
+            return;
 
         if (!GraveManager.isGrave(clicked.getLocation())) return;
 
@@ -69,15 +77,15 @@ public class GraveyardListener implements Listener {
         Player player = event.getPlayer();
         World.Environment environment = player.getWorld().getEnvironment();
 
-        if (environment == World.Environment.THE_END) {
-            MessageHelper.send(player, "&cLas tumbas no se generan en El End.");
+        if (environment == World.Environment.THE_END || environment == World.Environment.NETHER) {
+            MessageHelper.send(player, "&cLas tumbas no se generan en otras dimensiones.");
         }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-        if (block.getType() == Material.PLAYER_HEAD ||  block.getType() == Material.SKELETON_SKULL) {
+        if (block.getType() == Material.PLAYER_HEAD || block.getType() == Material.SKELETON_SKULL) {
             if (GraveManager.isGrave(block.getLocation())) {
                 event.setCancelled(true);
                 GraveManager.restoreGrave(event.getPlayer(), block.getLocation());
