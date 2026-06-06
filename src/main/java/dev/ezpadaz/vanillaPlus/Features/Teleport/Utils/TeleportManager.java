@@ -1,6 +1,5 @@
 package dev.ezpadaz.vanillaPlus.Features.Teleport.Utils;
 
-import com.mojang.brigadier.Message;
 import dev.ezpadaz.vanillaPlus.Utils.EffectHelper;
 import dev.ezpadaz.vanillaPlus.Utils.GeneralHelper;
 import dev.ezpadaz.vanillaPlus.Utils.MessageHelper;
@@ -12,9 +11,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.*;
 
@@ -26,13 +23,12 @@ import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 public class TeleportManager {
     private static final TeleportManager INSTANCE = new TeleportManager();
 
-    private final Map<UUID, Location> backLocations = new HashMap<>();
+    private final Map<UUID, BackLocation> backLocations = new HashMap<>();
     private final Map<String, TeleportRequest> requests = new HashMap<>();
     private final Map<String, Integer> activeTasks = new HashMap<>();
 
     private int TELEPORT_THRESHOLD = 0;
     private int TELEPORT_DELAY = 0;
-    private boolean TELEPORT_COST_EXP = false;
 
     private TeleportManager() {
 
@@ -45,35 +41,41 @@ public class TeleportManager {
     public void initialize() {
         TELEPORT_DELAY = GeneralHelper.getConfigInt("features.teleport.delay");
         TELEPORT_THRESHOLD = GeneralHelper.getConfigInt("features.teleport.threshold");
-        TELEPORT_COST_EXP = GeneralHelper.getConfigBool("features.teleport.should-cost-exp");
     }
 
     public void clearQueue() {
-        for (Map.Entry<String, TeleportRequest> entry : requests.entrySet()) {
-            String requestUUID = entry.getKey();
-            Integer activeTaskID = activeTasks.remove(requestUUID);
-            if (activeTaskID != null) {
-                SchedulerHelper.cancelTask(activeTaskID);
-                MessageHelper.consoleDebug("Cancelled " + activeTaskID);
-            }
+        for (String requestUUID : new ArrayList<>(requests.keySet())) {
+            cleanupRequest(requestUUID);
         }
-        requests.clear();
     }
 
     public void sendRequest(Player from, Player to, boolean bring) {
-        if (from == to) {
-            MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-self"));
+        if (from == null) {
             return;
         }
 
-        UUID requestUUID = GeneralHelper.generateUUID();
+        if (to == null) {
+            MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-request-target-offline").replace("%p", "desconocido"));
+            return;
+        }
 
-        TeleportRequest request = new TeleportRequest(requestUUID.toString(), from.getUniqueId(), to.getUniqueId(), bring, GeneralHelper.toISOString(GeneralHelper.getISODate()));
+        if (from.getUniqueId().equals(to.getUniqueId())) {
+            MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-self"));
+            return;
+        }
 
         if (!TeleportUtils.isSafe(from.getLocation()) && bring) {
             MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-unsafe-location"));
             return;
         }
+
+        if (!bring && !TeleportUtils.isSafe(to.getLocation())) {
+            MessageHelper.send(from, GeneralHelper.getLangString("features.teleport.tp-request-unsafe-location").replace("%p", to.getName()));
+            return;
+        }
+
+        UUID requestUUID = GeneralHelper.generateUUID();
+        TeleportRequest request = new TeleportRequest(requestUUID.toString(), from.getUniqueId(), to.getUniqueId(), bring, GeneralHelper.toISOString(GeneralHelper.getISODate()));
 
         requests.put(requestUUID.toString(), request);
 
@@ -100,7 +102,7 @@ public class TeleportManager {
         from.sendMessage(originMessage);
 
         Integer teleportTaskID = SchedulerHelper.scheduleTask(requestUUID.toString(), () -> {
-            requests.remove(requestUUID.toString());
+            cleanupRequest(requestUUID.toString());
 
             if (to.isOnline()) {
                 MessageHelper.send(to, GeneralHelper.getLangString("features.teleport.tp-target-expired").replace("%p", from.getName()));
@@ -121,6 +123,7 @@ public class TeleportManager {
         String requestID = getLatestTeleportRequest(target);
 
         if (requestID.isEmpty()) {
+            MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-accept-no-request"));
             return;
         }
 
@@ -134,18 +137,23 @@ public class TeleportManager {
             return;
         }
 
-        Integer activeTaskID = activeTasks.remove(teleportID);
-        if (activeTaskID != null) {
-            SchedulerHelper.cancelTask(activeTaskID);
-            //MessageHelper.consoleDebug("Cancelled " + activeTaskID);
+        if (!request.to().equals(target.getUniqueId())) {
+            MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-request-not-yours"));
+            return;
         }
 
         Player origin = Bukkit.getPlayer(request.from());
+        if (origin == null) {
+            cleanupRequest(teleportID);
+            MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-request-origin-offline").replace("%p", getPlayerName(request.from())));
+            return;
+        }
+
+        cancelExpirationTask(teleportID);
         MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-accept-origin-message"));
         MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-accept-target-message"));
 
         teleport(teleportID);
-        requests.remove(teleportID);
     }
 
     public void cancelRequest(Player sender, String requestUUID) {
@@ -159,6 +167,10 @@ public class TeleportManager {
             requestUUID = getLatestTeleportRequestFrom(sender);
         }
 
+        if (requestUUID.isEmpty()) {
+            return;
+        }
+
         cancelTeleportRequest(sender, requestUUID);
     }
 
@@ -170,37 +182,36 @@ public class TeleportManager {
             return;
         }
 
+        boolean isOrigin = request.from().equals(sender.getUniqueId());
+        boolean isTarget = request.to().equals(sender.getUniqueId());
+        if (!isOrigin && !isTarget) {
+            MessageHelper.send(sender, GeneralHelper.getLangString("features.teleport.tp-request-not-yours"));
+            return;
+        }
+
         Player origin = Bukkit.getPlayer(request.from());
         Player target = Bukkit.getPlayer(request.to());
 
-        requests.remove(requestUUID);
+        cleanupRequest(requestUUID);
 
-        Integer activeTaskID = activeTasks.remove(requestUUID);
-        if (activeTaskID != null) {
-            SchedulerHelper.cancelTask(activeTaskID);
-            //MessageHelper.consoleDebug("Cancelled " + activeTaskID);
-        }
-
-
-        if (origin == sender) {
-            // The sender (origin) is cancelling the TP, send the appropiate message.
+        if (isOrigin) {
             MessageHelper.send(sender, GeneralHelper.getLangString("features.teleport.tp-cancel-origin-message"));
-            MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-cancel-origin-target-message").replace("%p", sender.getName()));
+            sendIfOnline(target, GeneralHelper.getLangString("features.teleport.tp-cancel-origin-target-message").replace("%p", sender.getName()));
         } else {
             MessageHelper.send(sender, GeneralHelper.getLangString("features.teleport.tp-cancel-target-message"));
-            MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-cancel-target-origin-message").replace("%p", sender.getName()));
+            sendIfOnline(origin, GeneralHelper.getLangString("features.teleport.tp-cancel-target-origin-message").replace("%p", sender.getName()));
         }
     }
 
     public void teleportBack(Player player) {
-        Location location = backLocations.get(player.getUniqueId());
+        BackLocation backLocation = backLocations.get(player.getUniqueId());
 
-        if (location == null) {
+        if (backLocation == null) {
             MessageHelper.send(player, GeneralHelper.getLangString("features.teleport.tp-back-no-location"));
             return;
         }
 
-        GeneralHelper.executePlayerTeleport(player, location, TELEPORT_DELAY, GeneralHelper.getLangString("features.teleport.tp-back-message"));
+        GeneralHelper.executePlayerTeleport(player, backLocation.location(), TELEPORT_DELAY, GeneralHelper.getLangString("features.teleport.tp-back-message"));
         backLocations.remove(player.getUniqueId());
     }
 
@@ -216,23 +227,20 @@ public class TeleportManager {
 
         if (origin == null) {
             if (target != null) {
-                MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-request-target-offline").replace("%p", origin.getName()));
+                MessageHelper.send(target, GeneralHelper.getLangString("features.teleport.tp-request-origin-offline").replace("%p", getPlayerName(request.from())));
             }
+            cleanupRequest(requestUUID);
             return;
         }
 
         // This cant happen because the target accepted the TP, we still handle it just in case.
         if (target == null) {
-            MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-request-target-offline").replace("%p", target.getName()));
+            MessageHelper.send(origin, GeneralHelper.getLangString("features.teleport.tp-request-target-offline").replace("%p", getPlayerName(request.to())));
+            cleanupRequest(requestUUID);
             return;
         }
 
-        Integer taskID = activeTasks.remove(requestUUID);
-        if (taskID != null) {
-            SchedulerHelper.cancelTask(taskID);
-        }
-
-        requests.remove(requestUUID);
+        cleanupRequest(requestUUID);
 
         Location targetLocation = request.bring() ? origin.getLocation() : target.getLocation();
         String unsafePlayerName = (request.bring() ? origin.getName() : target.getName());
@@ -254,12 +262,33 @@ public class TeleportManager {
         }
     }
 
-    public void saveBackLocation(Player player) {
-        if (backLocations.containsKey(player.getUniqueId())) {
-            backLocations.remove(player.getUniqueId());
-        }
+    private void cleanupRequest(String requestUUID) {
+        requests.remove(requestUUID);
+        cancelExpirationTask(requestUUID);
+    }
 
-        backLocations.put(player.getUniqueId(), player.getLocation());
+    private void cancelExpirationTask(String requestUUID) {
+        Integer activeTaskID = activeTasks.remove(requestUUID);
+        if (activeTaskID != null) {
+            SchedulerHelper.cancelTask(activeTaskID);
+        }
+    }
+
+    private void sendIfOnline(Player player, String message) {
+        if (player != null && player.isOnline()) {
+            MessageHelper.send(player, message);
+        }
+    }
+
+    private String getPlayerName(UUID playerUUID) {
+        String playerName = Bukkit.getOfflinePlayer(playerUUID).getName();
+        return playerName == null ? "desconocido" : playerName;
+    }
+
+    public void saveBackLocation(Player player) {
+        UUID backLocationID = GeneralHelper.generateUUID();
+
+        backLocations.put(player.getUniqueId(), new BackLocation(backLocationID, player.getLocation()));
 
         // Send clickable message
         Component message = Component.text(GeneralHelper.getLangString("features.teleport.tp-on-back-available-message"))
@@ -275,9 +304,10 @@ public class TeleportManager {
 
         // Schedule expiration
         SchedulerHelper.scheduleTask(null, () -> {
-            Location tempLocation = backLocations.remove(player.getUniqueId());
+            BackLocation currentBackLocation = backLocations.get(player.getUniqueId());
 
-            if(tempLocation != null) {
+            if(currentBackLocation != null && currentBackLocation.id().equals(backLocationID)) {
+                backLocations.remove(player.getUniqueId());
                 MessageHelper.send(player, GeneralHelper.getLangString("features.teleport.tp-back-expired"));
             }
         }, 300);
@@ -308,5 +338,8 @@ public class TeleportManager {
         }
 
         return latest.get().requestUUID();
+    }
+
+    private record BackLocation(UUID id, Location location) {
     }
 }

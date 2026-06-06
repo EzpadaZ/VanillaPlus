@@ -1,9 +1,9 @@
 name: VanillaPlus
 version: ${version}
 main: dev.ezpadaz.vanillaPlus.VanillaPlus
-api-version: '1.21'
+api-version: '26.1.2'
 
 author: Molthor226
-description: A better version of VanillaEnhancer
+description: Modular vanilla-plus SMP utilities for Paper 26.1.2
 
 softdepend: [AuraSkills]

@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public final class VanillaPlus extends JavaPlugin {
+public class VanillaPlus extends JavaPlugin {
     private static VanillaPlus instance;
     public PaperCommandManager commandManager;
 

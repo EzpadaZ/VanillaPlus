@@ -29,6 +29,10 @@ public class AdminCommand extends BaseCommand {
         public void onHomeTpCommand(Player player, String[] args) {
             try {
                 if (!isOwner(player)) return;
+                if (args.length == 0 || args[0].isBlank()) {
+                    MessageHelper.send(player, GeneralHelper.getLangString("features.homes.admin-teleport-format-error"));
+                    return;
+                }
 
                 HomeManager.adminTeleportToUserHome(player, args[0]);
             } catch (Exception e) {

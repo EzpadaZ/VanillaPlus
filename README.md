@@ -1,75 +1,107 @@
 # VanillaPlus
 
-A **Minecraft Paper plugin** for **1.21.9+** that extends the vanilla experience with **lightweight, modular features**.  
-Inspired by my old `VanillaEnhancer` plugin — which had to walk so `VanillaPlus` could run 🏃.
+VanillaPlus is a **Paper 26.1.2** plugin for a private SMP server. It adds lightweight vanilla-plus systems without requiring an external database.
 
----
+The project is a rewrite of the old `VanillaEnhancer` plugin, with a stronger focus on modular features, file-based persistence, configurable behavior, and easier testing.
 
-## ✨ Why VanillaPlus?
+## Status
 
-I restarted development from scratch after archiving `VanillaEnhancer` because the old codebase was:
-- ❌ Unmaintainable and tightly coupled.
-- ❌ Hard to extend (e.g., adding another database was a nightmare).
-- ❌ Dependent on MongoDB — no Mongo meant no plugin.
+- Target server: **Paper 26.1.2**
+- Target Java: **25**
+- Plugin API version: **26.1.2**
+- Default language: **Spanish**
+- Primary audience: a personal SMP server
+- Test stack: **JUnit Jupiter + MockBukkit 26.1.2**
 
-With VanillaPlus, my goals are:
-- ✅ Modular features (easy to enable/disable).
-- ✅ Configuration-driven (no DB lock-in).
-- ✅ Proper dependency checks and cleaner architecture.
+## Features
 
----
+- **Graveyard**: creates death graves, stores inventory/XP, handles ownership and expiration.
+- **Backpack**: per-player backpack inventories persisted to JSON.
+- **Homes**: named homes, delayed teleporting, and admin home teleport.
+- **Teleport**: request/accept/cancel teleport flow, `/tp back`, delayed effects, and safety checks.
+- **Double XP**: configurable XP multiplier with optional AuraSkills integration.
+- **Gameplay Enhancements**: bookshelf compatibility tweaks and XP bottle storage.
+- **Admin Tools**: inventory/backpack inspection, save/reload helpers, and admin home teleport.
+- **Arbiter**: server watcher/restart control based on TPS thresholds.
+- **Debug**: development/debug commands.
 
-## 📦 Features
+## Compatibility
 
-VanillaPlus adds server-friendly, SMP-oriented improvements while staying close to vanilla gameplay:
+VanillaPlus is built against:
 
-- ⚰️ **Graveyard System** – Player deaths spawn a grave (head + inventory).
-- 🎒 **Backpack System** – Store items in personal backpacks.
-- 🏠 **Homes & Teleports** – Save locations, teleport to friends, or bring them to you.
-- ✨ **Double XP / 2XP Boost** – Command to increase XP gain (with AureliumSkills integration).
-- 🛠️ **Gameplay Enhancements** – Small quality-of-life tweaks and plugin compatibility fixes.
-- 👁️ **Admin Tools** – Check player inventories (useful for SMP moderation).
-- ⏱️ **Arbiter System** – Monitors server performance and safely restarts when needed (works with auto-boot setup).
-- 🌐 **Language Support** – Includes a `lang.yml` file for translations (default: Spanish).
+- `io.papermc.paper:paper-api:26.1.2.build.+`
+- `dev.aurelium:auraskills-api-bukkit:2.3.3` as a compile-only optional integration
 
----
+`plugin.yml` declares:
 
-## 🗺️ Roadmap
+- `api-version: '26.1.2'`
+- `softdepend: [AuraSkills]`
 
-- More modular event systems.
-- Expanded `lang.yml` for multiple language support.
-- Additional gameplay tweaks depending on server needs.
+## Data And Config
 
-This plugin is primarily developed for **my own SMP server**, but it’s flexible enough for others who want a **vanilla-plus** experience.
+The plugin writes runtime files under its plugin data folder.
 
----
+- `config.yml`: feature toggles and behavior settings.
+- `lang.yml`: user-facing messages, default Spanish.
+- `data/homes/homes.json`: saved homes.
+- `data/backpack/save.json`: backpack contents.
+- `data/deaths/graves.json`: grave data.
 
-## 🧩 Compatibility
+Bundled `config.yml` and `lang.yml` include numeric `version` fields. On startup, VanillaPlus refreshes the runtime copy when the bundled version is newer.
 
-- Built against **Paper 1.21.9** (latest release).
-- Integrates with **AureliumSkills**.
-- Designed to coexist with other lightweight vanilla-friendly plugins.
+## Build
 
----
+Requirements:
 
-## 📖 Installation
+- JDK 25
+- Gradle wrapper from this repo
 
-1. Download the latest release `.jar`.
-2. Drop it into your server’s `/plugins` folder.
-3. Restart the server.
-4. Configure options inside the generated `config.yml` and `lang.yml`.
+Useful commands:
 
----
+```bash
+./gradlew compileJava
+./gradlew test
+./gradlew shadowJar
+./gradlew runServer
+```
 
-## 🙋 Notes
+Build outputs are written to `server/plugins`.
 
-- This project is personal and features will be added as I find new ideas useful for my own server.
-- Aim: keep it **as vanilla as possible**, only enhancing what feels natural to Minecraft.
+The generated plugin version uses:
 
----
+```text
+<baseVersion>+<yyyyMMddHHmm>
+```
 
-## 📜 License
+For example:
 
-MIT — free to use, modify, and adapt.
+```text
+1.4.0+202606061430
+```
 
----
+## Tests
+
+The test suite currently covers important regression areas in Teleport and Homes.
+
+- `TeleportUtilsTest`: safe-location checks.
+- `TeleportManagerTest`: `/tp back` expiration race.
+- `HomeManagerTest`: home name normalization, updates, limits, delete behavior, reload behavior, and missing-world safeguards.
+
+Run:
+
+```bash
+./gradlew test
+```
+
+## Development Notes
+
+- Features live under `src/main/java/dev/ezpadaz/vanillaPlus/Features`.
+- Shared helpers live under `src/main/java/dev/ezpadaz/vanillaPlus/Utils`.
+- Commands use Aikar Commands Framework.
+- Feature modules mostly use static managers and static `initialize()` methods.
+- Persistence is JSON through Gson.
+- Keep user-facing messages in `lang.yml` unless there is a strong reason not to.
+
+## License
+
+MIT.

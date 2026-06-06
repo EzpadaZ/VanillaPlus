@@ -3,30 +3,56 @@ package dev.ezpadaz.vanillaPlus.Features.Teleport.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 public class TeleportUtils {
     public static boolean isSafe(Location location) {
+        if (location == null) {
+            return false;
+        }
+
         World world = location.getWorld();
+        if (world == null) {
+            return false;
+        }
+
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();
 
-        Material atFeet = world.getBlockAt(x, y, z).getType();
-        Material below = world.getBlockAt(x, y - 1, z).getType();
-        Material atHead = world.getBlockAt(x, y + 1, z).getType();
+        Block feetBlock = world.getBlockAt(x, y, z);
+        Block belowBlock = world.getBlockAt(x, y - 1, z);
+        Block headBlock = world.getBlockAt(x, y + 1, z);
 
-        if (atFeet == Material.AIR && below == Material.AIR && world.getBlockAt(x, y - 2, z).getType() == Material.AIR) {
-            return false; // Falling trap
+        Material atFeet = feetBlock.getType();
+        Material below = belowBlock.getType();
+        Material atHead = headBlock.getType();
+
+        if (!below.isSolid()) {
+            return false;
         }
 
-        if ((atFeet == Material.LAVA || atFeet == Material.LAVA_CAULDRON) && !atFeet.isSolid() || below == Material.LAVA) {
-            return false; // Lava hazard
+        if (!feetBlock.isPassable() || !headBlock.isPassable()) {
+            return false;
         }
 
-        if (atFeet.isSolid() && atHead.isSolid()) {
-            return false; // Not enough space
+        if (isHazard(atFeet) || isHazard(below) || isHazard(atHead)) {
+            return false;
         }
 
-        return !atFeet.isAir() || !below.isAir();
+        return true;
+    }
+
+    private static boolean isHazard(Material material) {
+        return material == Material.LAVA
+                || material == Material.LAVA_CAULDRON
+                || material == Material.FIRE
+                || material == Material.SOUL_FIRE
+                || material == Material.MAGMA_BLOCK
+                || material == Material.CACTUS
+                || material == Material.CAMPFIRE
+                || material == Material.SOUL_CAMPFIRE
+                || material == Material.SWEET_BERRY_BUSH
+                || material == Material.POWDER_SNOW;
     }
 }

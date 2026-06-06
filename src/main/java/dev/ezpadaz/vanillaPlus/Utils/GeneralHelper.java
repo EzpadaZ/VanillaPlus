@@ -131,7 +131,9 @@ public class GeneralHelper {
 
             // teleport the player.
             try {
-                target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                if (target.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN)) {
+                    MessageHelper.send(target, message);
+                }
             } catch (Exception ignored) {
                 MessageHelper.console("Teleport failed with error: " + ignored.getMessage());
             }
